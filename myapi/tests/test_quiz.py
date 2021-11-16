@@ -1,5 +1,6 @@
 from django.test import TestCase
 from ..models import *
+from ..serializers import quiz_serializers
 # Create your tests here.
 class QuizUnitTest(TestCase):
     
@@ -50,6 +51,7 @@ class QuizUnitTest(TestCase):
         correct_answer=1,
         quiz=quiz
         )
+        quiz.questions.add(Question.objects.get(title="Whats is your name 3?"))
         self.MAX_POINT = 30
 
     def test_quiz_total_point(self):
@@ -66,3 +68,9 @@ class QuizUnitTest(TestCase):
         prof = User.objects.get(first_name="Professor")
         quiz = Quiz.objects.get(title="First Math Quiz")
         self.assertEqual(prof,quiz.owner)
+
+    def test_quiz_serializer(self):
+        quiz = Quiz.objects.get(title="First Math Quiz")
+        print(quiz.questions.all())
+        quiz_data = quiz_serializers.QuizSerializers(quiz)
+        print(quiz_data.data)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import *
+from ..models import User
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='full_name',read_only=True)
@@ -8,3 +8,4 @@ class UserSerializer(serializers.ModelSerializer):
         # fields = "__all__"
         exclude = ['first_name',"last_name","password",'id']
         extra_kwargs = {"password":{"write_only":True}}
+        

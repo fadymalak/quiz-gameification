@@ -17,6 +17,8 @@ class User(AbstractBaseUser):
     username = models.CharField(max_length=15,unique=True,null=False)
     last_name = models.CharField(max_length=15)
     first_name = models.CharField(max_length=15)
+    bio = models.CharField(max_length=50)
+    picture = models.URLField(blank=True,null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     courses = models.ManyToManyField("Courses",related_name="users")
 
