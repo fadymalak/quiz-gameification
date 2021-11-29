@@ -15,7 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from myapi.views.user_views import UserViewSet
+from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt import views as jwt_views
+
+router = DefaultRouter()
+router.register(r'users', UserViewSet, basename='user')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('auth/token/',jwt_views.TokenObtainPairView.as_view(),name="token_pair"),
+    path('auth/token/refresh/',jwt_views.TokenRefreshView.as_view(),name="token_pair_refresh"),
 ]
+
+urlpatterns += router.urls
+

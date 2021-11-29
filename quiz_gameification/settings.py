@@ -39,8 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'myapi',
+    'rest_framework_simplejwt'
     
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -72,7 +79,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'quiz_gameification.wsgi.application'
 
-
+AUTH_USER_MODEL ='myapi.User'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
