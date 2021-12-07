@@ -16,11 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from myapi.views.user_views import UserViewSet
+from myapi.views.quiz_views import QuizViewSet
+from myapi.views.courses_views import CourseViewSet
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt import views as jwt_views
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
+router.register(r'quiz', QuizViewSet, basename='quiz')
+router.register(r'course', CourseViewSet, basename='course')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
