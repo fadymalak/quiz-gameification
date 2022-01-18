@@ -1,5 +1,4 @@
 import functools
-a = 0
 
 USER_ID = 1
 GROUP_ID =1
