@@ -1,0 +1,11 @@
+djangorestframework-simplejwt
+pytest-cov
+pytest-xdist
+pytest-testmon
+pytest-benchmark
+psycopg
+django >= 4.0.1
+djangorestframework >= 3.13.1
+pytest == 6.2.5
+factory_boy == 3.2.1
+

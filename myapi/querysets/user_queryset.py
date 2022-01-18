@@ -1,14 +1,18 @@
 
 from django.db import models
-from django.db.models import Count , F
+from django.db.models import Count , F , Sum
 
 
 class UserQuerySet(models.QuerySet):
-    def professor(self):
-        pass
-    def get_points(self):
-        return self.annotate(points=Count(F(self.anwsers.point)))
+    def professors(self):
+        return self.filter(is_staff=True)
+
+    #Show Be Removed 'User' object has no attribute 'get_points'
+    def get_points(self,uid):
+        return self\
+            .filter(id=uid)\
+            .aggregate(points=Sum("anwsers__point"))
 
     def get_classes(self):
-        return self.courses
+        return self.courses.all()
     

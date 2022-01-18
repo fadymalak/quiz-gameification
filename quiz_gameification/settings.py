@@ -33,7 +33,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
-    'django.contrib.auth',
+   'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -90,11 +90,23 @@ AUTH_USER_MODEL ='myapi.User'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME':'dbtest', 
+        'USER':'admin',
+        'PASSWORD':'adminadmin',
+        'HOST':'127.0.0.1',
+        'PORT':'5432',
     }
 }
 
+
+CACHES = {
+    'default':{
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': ['redis://127.0.0.1:6379',
+                    'redis://127.0.0.1:6378']
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -124,7 +136,7 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+#USE_L10N = True
 
 USE_TZ = True
 

@@ -1,10 +1,12 @@
 
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet 
 from ..models import User
 from django.db.models import Q
 from ..serializers.user_serializers import UserSerializer,UserDetailsSerializer
 from rest_framework.renderers import JSONOpenAPIRenderer,BrowsableAPIRenderer,TemplateHTMLRenderer
-from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly,AllowAny
+from rest_framework.permissions import IsAuthenticated,AllowAny
+from ..permissions import IsSameUser
+from rest_framework.decorators import  permission_classes , action
 
 
 class UserViewSet(ModelViewSet):
@@ -16,7 +18,7 @@ class UserViewSet(ModelViewSet):
         elif self.action == 'create':
             permission_classes=[AllowAny]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [IsSameUser]
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):

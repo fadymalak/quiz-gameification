@@ -4,9 +4,9 @@ import datetime
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
 class BasicModel(models.Model):
-    id = models.IntegerField(db_index=True,primary_key=True)
+    # id = models.IntegerField(db_index=True,primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    modified = models.DateTimeField(auto_now_add=True)
     class meta:
         abstract = True
 
