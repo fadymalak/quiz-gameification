@@ -3,7 +3,7 @@ import pytest
 import functools
 from .factories import *
 from myapi.models import *
-from . utils import rgetattr
+from .utils import rgetattr ,gen_quiz_data
 
 
 @pytest.mark.e2e
@@ -81,18 +81,19 @@ def test_functional_Course_create(API,SUPER_LOGIN):
 
 
 # @pytest.mark.e2e
-# @pytest.mark.parametrize("username,super",\
+# @pytest.mark.parametrize("username,staff",\
 #     [("fady_malak",True),("student_2022",False)])
 # @pytest.mark.django_db
-# def test_e2e_create_quiz(API,username,super):
-#     u = UserFactory.create(username=username,is_staff=super)
+# def test_e2e_create_quiz(API,username,staff):
+#     u = UserFactory.create(username=username,is_staff=staff)
 #     API.force_authenticate(user=u)
 #     req = API.post("/course/",data={"name":"Course 1"})
     
 
 @pytest.mark.test
 @pytest.mark.django_db
-@pytest.mark.parametrize("teacher,own,result",[(True,True,201),(False,True,403),(True,False,403)])
+@pytest.mark.parametrize("teacher,own,result",\
+    [(True,True,201),(False,False,403),(False,True,403),(True,False,403)])
 def test_e2e_create_quiz_endpoint(API,teacher,own,result):
     u = UserFactory.create(is_staff=teacher)
     if own == False and teacher == True:
@@ -106,19 +107,21 @@ def test_e2e_create_quiz_endpoint(API,teacher,own,result):
         c = CourseFactory.create(owner= u)
 
     API.force_authenticate(user=u)
-    request = API.post("/quiz/",data= { 
-        "title":"Quiz %s"%(str(teacher)),
-         "owner" : u.id,
-         "course":c.id,
-    })
+    data = \
+    gen_quiz_data(title="Quiz%s"%(str(teacher)),
+                    owner = u.id,
+                    course=c.id,
+                )
+
+    request = API.post("/quiz/",data = data)
     assert request.status_code == result
 
 
-@pytest.mark.tes
+@pytest.mark.test
 @pytest.mark.django_db
-@pytest.mark.parametrize("Student",[True,False],indirect=True)
-def test_testo(Student):
-    a , b = Student
+@pytest.mark.parametrize("user_login",[True,False],indirect=True)
+def test_testo(user_login):
+    a , b = user_login
     print(a)
     print(b)
     q = User.objects.all()[0]

@@ -8,7 +8,7 @@ class IsCourseOwner(BasePermission):
         query = Courses.objects.get(id=course_id)
         
         return request.user.is_staff and (request.user == query.owner)
-
+    
 
 class IsSameUser(BasePermission):
     '''

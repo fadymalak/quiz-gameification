@@ -13,6 +13,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer,JSONRenderer
 from rest_framework.permissions import SAFE_METHODS
+from .utils import REQUIRED_OWNER
 
 class QuizViewSet(ModelViewSet):
     renderer_classes = [JSONRenderer,BrowsableAPIRenderer]
@@ -20,11 +21,11 @@ class QuizViewSet(ModelViewSet):
     
     serializer_class = QuizSerializers
     def get_permissions(self):
-        if self.action in  ["create","update","destroy"]:
+        if self.action in REQUIRED_OWNER:
             permission_class = [IsCourseOwner,IsAuthenticated]
             return [permission() for permission in permission_class]
-
         return super().get_permissions()
+        
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
             return QuizSerializers

@@ -14,9 +14,11 @@ def SUPER_LOGIN(API):
     API.force_authenticate(user=u)
     yield
 
+
 @pytest.mark.django_db
 @pytest.fixture
-def Student(request,API):
+def user_login(request,API):
     u = UserFactory.create(username="login22",is_staff=request.param)
     API.force_authenticate(user=u)
     return API , request.param
+

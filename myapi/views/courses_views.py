@@ -14,11 +14,11 @@ from rest_framework import status
 class CourseViewSet(ModelViewSet):
     renderer_classes = [JSONRenderer,BrowsableAPIRenderer]
     permission_classes = [((IsEnrolled|IsTeacher) & IsAuthenticated),]
-    # def get_permissions(self):
-    #     if self.request.method == "POST":
-    #         permission_classes=[AllowAny,]
-    #         return [permission() for permission in permission_classes]
-    #     return super().get_permissions()
+    def get_permissions(self):
+        if self.action == "create":
+            permission_classes=[IsTeacher,IsAuthenticated]
+            return [permission() for permission in permission_classes]
+        return super().get_permissions()
     def get_serializer_class(self):
         if self.request.method == "GET":
             # return Course Details
