@@ -25,6 +25,8 @@ class CourseViewSet(ModelViewSet):
             return CourseDetailSerializer
         return CourseSerializers
 
+
+    #
     def get_object(self):
         course_id = self.kwargs[self.lookup_field]
         return Courses.objects.get(id=course_id)
