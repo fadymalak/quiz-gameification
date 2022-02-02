@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  redis1:
+    image: redis
+    ports:
+      - "6379:6379"
+      
+  redis2:
+    image: redis
+    ports:
+      - "6378:6378"
+      
+  db:
+    image: postgres
+    environment:
+      - "POSTGRES_PASSWORD=adminadmin"
+      - "DB_HOST=host.docker.internal"
+      - "POSTGRES_USER=admin"
+      - "PGDATA=/var/lib/postgresql/data/pgdata"
+    ports:
+      - "5432:5432"
+    volumes:
+      - "datadb:/var/lib/postgresql/data/pgdata"
+
+  rabbit:
+    image: rabbitmq:3-management
+    environment:
+      - "RABBITMQ_DEFAULT_USER=admin"
+      - "RABBITMQ_DEFAULT_PASS=admin2017"
+    ports:
+      - "5672:5672"
+
+volumes:
+ datadb:
+    external: true
+    name: datadb
