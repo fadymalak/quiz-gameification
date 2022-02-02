@@ -9,4 +9,5 @@ django >= 4.0.1
 djangorestframework >= 3.13.1
 pytest == 6.2.5
 factory_boy == 3.2.1
+celery >= 5.2.3
 

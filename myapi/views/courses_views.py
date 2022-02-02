@@ -33,6 +33,7 @@ class CourseViewSet(ModelViewSet):
     def get_queryset(self):
         param = self.request.query_params
         search = param.get("search",1)
+        
         return Courses.objects\
             .alias(
             oname=Concat(F('owner__first_name'),Value(" "),F("owner__last_name"))

@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-xc1o(s6o(7zoxi^&zzdvejqjh0f+9j=j+n$4$yudd@a=ge8er4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -56,6 +56,7 @@ SIMPLE_JWT = {
     }
 
 MIDDLEWARE = [
+    
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -63,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'myapi.middleware.SimpleMiddleware'
 ]
 
 ROOT_URLCONF = 'quiz_gameification.urls'
@@ -108,6 +110,8 @@ CACHES = {
                     'redis://127.0.0.1:6378']
     }
 }
+CELERY_BROKER_URL = 'amqp://admin:admin2017@localhost'
+CELERY_IMPORTS = ("myapi.views.tasks", )
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
