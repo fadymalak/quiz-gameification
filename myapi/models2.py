@@ -3,6 +3,7 @@ from django.db import models
 
 class BaseItem(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
+    deleted = models.IntegerField(default=0)
     text = models.TextField(blank=False)
     image = models.ImageField()
     class Meta:
@@ -20,3 +21,4 @@ class YNQ(BaseItem):
 
 class GQ(BaseItem):
     answer = models.TextField(blank=False)
+
