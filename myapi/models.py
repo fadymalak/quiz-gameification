@@ -9,6 +9,7 @@ from .querysets import quiz_queryset,course_queryset , user_queryset
 from django.utils import timezone
 from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
+from .models2 import Question
 
 class User(AbstractUser):
     
@@ -73,31 +74,35 @@ class Quiz(models.Model):
     title = models.CharField(max_length=150)
     owner = models.ForeignKey(User,on_delete=models.CASCADE)
     end_at = models.DateTimeField(
-                                default=\
-                                datetime.datetime.now()+datetime.timedelta(days=7)
+                                # default=\
+                                # datetime.datetime.now()+datetime.timedelta(days=7)
                                 )
     users = models.ManyToManyField(User,related_name="quizs")
     # total_point = models.PositiveIntegerField()
     course = models.ForeignKey(Courses,related_name="quizs",on_delete=models.CASCADE)
-
     objects = quiz_queryset.QuizQuerySet.as_manager()
+
+
+    def save(self,*args,**kwargs):
+        self.end_at = datetime.datetime.now()+datetime.timedelta(days=7)
+        return super(Quiz,self).save(*args,**kwargs)
 
     def get_points(self):
         return self.questions.aggregate(total_point=Sum(F("point")))
     
-class Question(models.Model):
-    id = models.AutoField(db_index=True,primary_key=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    title = models.CharField(max_length=150)
-    point = models.IntegerField()
-    option1= models.CharField(max_length=150)
-    option2= models.CharField(max_length=150)
-    option3= models.CharField(max_length=150)
-    option4= models.CharField(max_length=150)
-    correct_answer = models.IntegerField()
-    quiz = models.ForeignKey(Quiz,related_name="questions",on_delete=models.CASCADE)
-
+# class Question(models.Model):
+    # id = models.AutoField(db_index=True,primary_key=True)
+    # created_at = models.DateTimeField(auto_now_add=True)
+# 
+    # title = models.CharField(max_length=150)
+    # point = models.IntegerField()
+    # option1= models.CharField(max_length=150)
+    # option2= models.CharField(max_length=150)
+    # option3= models.CharField(max_length=150)
+    # option4= models.CharField(max_length=150)
+    # correct_answer = models.IntegerField()
+    # quiz = models.ForeignKey(Quiz,related_name="questions",on_delete=models.CASCADE)
+# 
 class Answer(models.Model):
     id = models.AutoField(db_index=True,primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)

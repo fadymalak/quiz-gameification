@@ -98,7 +98,7 @@ DATABASES = {
         'USER':'admin',
         'PASSWORD':'adminadmin',
         'HOST':'127.0.0.1',
-        'PORT':'5432',
+        'PORT':'5431',
     }
 }
 
@@ -106,11 +106,11 @@ DATABASES = {
 CACHES = {
     'default':{
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': ['redis://127.0.0.1:6379',
-                    'redis://127.0.0.1:6378']
+        'LOCATION': ['redis://127.0.0.1:6378',
+                    'redis://127.0.0.1:6377']
     }
 }
-CELERY_BROKER_URL = 'amqp://admin:admin2017@localhost'
+CELERY_BROKER_URL = 'amqp://admin:admin2017@localhost:5671'
 CELERY_IMPORTS = ("myapi.views.tasks", )
 
 # Password validation

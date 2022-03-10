@@ -3,12 +3,12 @@ services:
   redis1:
     image: redis
     ports:
-      - "6379:6379"
+      - "6378:6378"
       
   redis2:
     image: redis
     ports:
-      - "6378:6378"
+      - "6377:6377"
       
   db:
     image: postgres
@@ -18,7 +18,7 @@ services:
       - "POSTGRES_USER=admin"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
     ports:
-      - "5432:5432"
+      - "5431:5432"
     volumes:
       - "datadb:/var/lib/postgresql/data/pgdata"
 
@@ -28,7 +28,7 @@ services:
       - "RABBITMQ_DEFAULT_USER=admin"
       - "RABBITMQ_DEFAULT_PASS=admin2017"
     ports:
-      - "5672:5672"
+      - "5671:5671"
 
 volumes:
  datadb:

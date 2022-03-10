@@ -1,5 +1,6 @@
 from django.db import models
 from myapi.models import User
+from django.utils import timezone
 # Create your models here.
 class Rule(models.Model):
     CHOICES = [
@@ -15,7 +16,7 @@ class Badge(models.Model):
     name  = models.CharField(max_length=150,null=False)
     image = models.ImageField(upload_to="upload/badges/")
     rules = models.ManyToManyField(Rule,related_name="badges") 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     enable  = models.IntegerField(default=1)
     users = models.ManyToManyField(User,related_name="badges")
 
