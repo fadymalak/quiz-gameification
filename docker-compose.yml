@@ -18,7 +18,7 @@ services:
       - "POSTGRES_USER=admin"
       - "PGDATA=/var/lib/postgresql/data/pgdata"
     ports:
-      - "5431:5432"
+      - "aaa"
     volumes:
       - "datadb:/var/lib/postgresql/data/pgdata"
 
