@@ -1,4 +1,3 @@
-from lib2to3.pytree import Base
 from django.db import models 
 from django.utils import timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -29,6 +28,7 @@ class Question(models.Model):
                                     ('mcq','gq','ynq')
                                     }
                                     ,on_delete=models.CASCADE)
+    point = models.PositiveIntegerField(default=1)
     item = GenericForeignKey('content_type','qid')
 
 class MCQ(BaseItem):
@@ -40,8 +40,8 @@ class MCQ(BaseItem):
 
 
 class YNQ(BaseItem):
-    CHOICES = (("T","True"),("T","False"))
-    correct_answer = models.CharField(max_length=1,choices=CHOICES)
+    CHOICES = (("T","True"),("F","False"))
+    correct_answer = models.CharField(max_length=3,choices=CHOICES)
 
 class GQ(BaseItem):
     correct_answer = models.TextField(blank=False)

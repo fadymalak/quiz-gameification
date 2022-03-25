@@ -25,13 +25,28 @@ def test_factory_user_course():
 
 @pytest.mark.django_db
 def test_factory_questions():
-    nums = 4
-    #create 3 Users by Quiz  + owner User 
-    question = QuestionFactory.create()
+    nums = 5
+    #create 3 Users by Quiz  + owner User  + MCQ Factory
+    # u = UserFactory.create()
+    mcq = MCQFactory.create()
+    # print(mcq.owner)
+    print(User.objects.all().count())
+    question = QuestionFactory.create(item=mcq)
+    print(User.objects.all().count())
     users = User.objects.all().count()
     assert nums == users
-    print(question.title)
     assert True
+
+
+
+@pytest.mark.django_db 
+def test_question_answer():
+    mcq =  MCQFactory.create()
+    question = QuestionFactory.create(item=mcq)
+    usx = question.quiz.users.all()[0]
+    Answer = AnswerFactory.create(point=0,user=usx,question=question,user_answer=question.item.correct_answer)
+    assert Answer.user_answer == mcq.correct_answer
+    
 
 @pytest.mark.django_db
 def test_factory_quiz():
@@ -40,9 +55,8 @@ def test_factory_quiz():
     assert query == 1
 
 @pytest.mark.django_db
-def test_question_answer():
-    question = QuestionFactory.create()
-    usx = question.quiz.users.all()[0]
-    Answer = AnswerFactory.create(point=0,user=usx,question=question,user_answer=question.correct_answer)
-    assert Answer.user_answer == question.correct_answer
-    
+@pytest.mark.parametrize("r",["GQ","MCQ","YNQ"])
+def test_dynamic_question_gen(r,CREATE_QUESTION,request):
+    if MCQ.objects.count():
+        print(MCQ.objects.get())
+    assert 1==1

@@ -6,8 +6,14 @@ from django.template import Context , Engine
 from django.utils.version import get_version
 from django.utils import timezone
 import time
+from myapi.models import User
 from myapi.constants import TEMPLATE
 Engine = Engine(debug=False,libraries={'i18n': 'django.templatetags.i18n'},)
+
+def check_unique(prop,value,model=User):
+    param = {prop:value}
+    count = model.objects.filter(**param).count()
+    return count == 0
 
 class TelegramExceptionReporter(ExceptionReporter):
     def get_traceback_data(self) -> Dict[str, Any]:

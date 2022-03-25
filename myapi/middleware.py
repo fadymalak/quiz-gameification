@@ -5,6 +5,24 @@ import sys
 from django.views.debug import ExceptionReporter , technical_500_response
 from myapi.utils import TelegramExceptionReporter
 from myapi.views.tasks import telegram_send_report
+import time
+class StatsMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+        # One-time configuration and initialization.
+
+    def __call__(self, request):
+        # Code to be executed for each request before
+        # the view (and later middleware) are called.
+        start_time = time.time()
+
+        response = self.get_response(request)
+
+        duration = time.time() - start_time
+
+        # Add the header. Or do other things, my use case is to send a monitoring metric
+        response["X-Page-Generation-Duration-ms"] =int( duration*1000)
+        return response
 
 class SimpleMiddleware:
     def __init__(self, get_response):

@@ -1,13 +1,14 @@
 from rest_framework import serializers
-from ..models import Quiz ,Answer
-from .question_serializers import QuestionSerializer
+from myapi.models import Quiz ,Answer
+from myapi.serializers.question_serializers import QuestionSerializer
 
 class QuizSerializers(serializers.ModelSerializer):
     class Meta:
         model = Quiz
         depth = 0
         exclude=['users']
-        
+    
+
 class QuizDetailSerializer(serializers.ModelSerializer):
     question = QuestionSerializer(many=True,read_only=True)
     class Meta :
@@ -19,3 +20,13 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         exclude = ['created_at','id']
+
+class Answer2Serializer(serializers.Serializer):
+    user_answer = serializers.CharField()
+    id = serializers.IntegerField()
+
+
+
+class SubmitAnswerSerializer(serializers.Serializer):
+    data = Answer2Serializer(many=True)
+

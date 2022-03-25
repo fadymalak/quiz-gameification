@@ -75,11 +75,12 @@ class Quiz(models.Model):
     owner = models.ForeignKey(User,on_delete=models.CASCADE)
     end_at = models.DateTimeField(
                                 # default=\
-                                # datetime.datetime.now()+datetime.timedelta(days=7)
+                                # lambda n:datetime.datetime.now()+datetime.timedelta(days=7)
                                 )
     users = models.ManyToManyField(User,related_name="quizs")
     # total_point = models.PositiveIntegerField()
     course = models.ForeignKey(Courses,related_name="quizs",on_delete=models.CASCADE)
+    
     objects = quiz_queryset.QuizQuerySet.as_manager()
 
 
@@ -88,7 +89,7 @@ class Quiz(models.Model):
         return super(Quiz,self).save(*args,**kwargs)
 
     def get_points(self):
-        return self.questions.aggregate(total_point=Sum(F("point")))
+        return self.questions.aggregate(total_point=Sum(F("item__point")))
     
 # class Question(models.Model):
     # id = models.AutoField(db_index=True,primary_key=True)
@@ -104,10 +105,11 @@ class Quiz(models.Model):
     # quiz = models.ForeignKey(Quiz,related_name="questions",on_delete=models.CASCADE)
 # 
 class Answer(models.Model):
+    STATUS_CHOICES = (("PENDING","PENDING"),("COMPLETED","COMPLETED"))
     id = models.AutoField(db_index=True,primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
     point = models.IntegerField()
     user = models.ForeignKey(User,related_name="anwsers",on_delete=models.DO_NOTHING)
     question = models.ForeignKey(Question,related_name="anwsers",on_delete=models.DO_NOTHING)
-    user_answer = models.IntegerField()
-
+    user_answer = models.TextField(default="")
+    status = models.TextField(null=False,default="COMPLETED",choices=STATUS_CHOICES)

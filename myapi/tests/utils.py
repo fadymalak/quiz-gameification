@@ -24,7 +24,7 @@ def rgetattr(obj, attr, *args):
     return functools.reduce(_getattr, [obj] + attr.split('.'))
 
 def gen_quiz_data(*args,**kwargs):
-    result = {'t':'1'}
+    result = {}
     for k ,v in kwargs.items():
         result[k] = v
     return result

@@ -1,7 +1,10 @@
+from attr import Factory
 import factory
 from factory.helpers import post_generation
-from ..models import Answer, Question, Quiz, User,Courses
+from ..models import Answer,  Quiz, User,Courses #,Question
+from ..models2 import GQ , YNQ , Question, MCQ
 import pytest
+from django.contrib.contenttypes.models import ContentType
 import random
 from .utils import update
 import factory.fuzzy
@@ -12,11 +15,12 @@ class UserFactory(factory.django.DjangoModelFactory):
     # BUGFIX If id not provided object will return id None
     id = factory.Sequence(lambda n: int(n))#LazyAttribute(lambda _ :update('u'))
     username = factory.faker.Faker('user_name')
-    last_name = factory.faker.Faker("name")
-    first_name = factory.faker.Faker("name")
+    last_name = factory.faker.Faker("first_name")
+    first_name = factory.faker.Faker("first_name")
     
  
 class CourseFactory(factory.django.DjangoModelFactory):
+
     class Meta:
         model = Courses
     id = factory.Sequence(lambda n: int(n))
@@ -54,14 +58,49 @@ class QuestionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Question
     id = factory.LazyAttribute(lambda _:update('gw'))
-    title = factory.Sequence(lambda n:"Question %s"%(n))
+    point = factory.fuzzy.FuzzyInteger(1,50)
+    quiz = factory.SubFactory(QuizFactory)
+    qid = factory.SelfAttribute("item.id")
+    content_type = factory.LazyAttribute(
+        lambda c : ContentType.objects.get_for_model(c.item)
+        )
+
+class BaseQuestionFactory(factory.django.DjangoModelFactory):
+    deleted = 0 #fixed Value 
+    title = factory.Sequence(lambda n: "Question %s"%(n))
+    image = "/image/1.png" #fixed value
+    owner = factory.SubFactory(UserFactory)
+    class Meta:
+        abstract = True
+
+
+class GQFactory(BaseQuestionFactory):
+    # item = factory.SubFactory(GQSub)
+    # id = factory.Sequence(lambda n: int(n))
+    correct_answer = factory.Sequence(lambda n :"GQ Answer: %s"%(n))
+    class Meta:
+        model = GQ
+
+    def __str__(self):
+        return "GQ"
+
+class MCQFactory(BaseQuestionFactory):
+    # item = factory.SubFactory(MCQSub)
     option1 = factory.Sequence(lambda n: "Answer %s"%n)
     option2 = factory.Sequence(lambda n: "Answer %s"%n)
     option3 = factory.Sequence(lambda n: "Answer %s"%n)
     option4 = factory.Sequence(lambda n: "Answer %s"%n)
     correct_answer = factory.fuzzy.FuzzyInteger(1,4)
-    point = factory.fuzzy.FuzzyInteger(10,50)
-    quiz = factory.SubFactory(QuizFactory)
+    # correct_answer = factory.Sequence(lambda n :"GQ Answer: %s"%(n))
+    class Meta:
+        model = MCQ
+
+
+class YNQFactory(BaseQuestionFactory):
+    # item = factory.SubFactory(YNQSub)
+    correct_answer = factory.Sequence(lambda n :["T","F"][random.randint(0,1)])
+    class Meta:
+        model = YNQ
 
 class AnsFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -79,4 +118,4 @@ class AnswerFactory(AnsFactory):
 class AnswerCorrectFactory(AnsFactory):
     point = int(10)
     question = factory.SubFactory(QuestionFactory,\
-        correct_answer=factory.SelfAttribute('..user_answer'))
+        correct_answer=factory.SelfAttribute('..item.user_answer'))
