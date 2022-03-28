@@ -7,36 +7,58 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('badges', '0001_initial'),
+        ("badges", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Rule',
+            name="Rule",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=150)),
-                ('require_type', models.CharField(choices=[('POINT', 'POINT'), ('NUMBER_OF_QUIZS', 'NUMBER_OF_QUIZS'), ('NUMBER_OF_CORRECT_QUESTION', 'NUMBER_OF_CORRECT_QUESTION'), ('ACTIVE', 'ACTIVE')], max_length=40)),
-                ('require', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=150)),
+                (
+                    "require_type",
+                    models.CharField(
+                        choices=[
+                            ("POINT", "POINT"),
+                            ("NUMBER_OF_QUIZS", "NUMBER_OF_QUIZS"),
+                            (
+                                "NUMBER_OF_CORRECT_QUESTION",
+                                "NUMBER_OF_CORRECT_QUESTION",
+                            ),
+                            ("ACTIVE", "ACTIVE"),
+                        ],
+                        max_length=40,
+                    ),
+                ),
+                ("require", models.IntegerField()),
             ],
         ),
         migrations.RemoveField(
-            model_name='badge',
-            name='points',
+            model_name="badge",
+            name="points",
         ),
         migrations.AddField(
-            model_name='badge',
-            name='created_at',
+            model_name="badge",
+            name="created_at",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AddField(
-            model_name='badge',
-            name='enable',
+            model_name="badge",
+            name="enable",
             field=models.IntegerField(default=1),
         ),
         migrations.AddField(
-            model_name='badge',
-            name='rules',
-            field=models.ManyToManyField(related_name='badges', to='badges.Rule'),
+            model_name="badge",
+            name="rules",
+            field=models.ManyToManyField(related_name="badges", to="badges.Rule"),
         ),
     ]

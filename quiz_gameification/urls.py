@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path , reverse , resolve , include
+from django.urls import path, reverse, resolve, include
 from myapi.views.user_views import UserViewSet
 from myapi.views.quiz_views import QuizViewSet
 from myapi.views.courses_views import CourseViewSet
@@ -22,15 +22,18 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt import views as jwt_views
 
 router = DefaultRouter()
-router.register(r'users', UserViewSet, basename='user')
-router.register(r'quiz', QuizViewSet, basename='quiz')
-router.register(r'course', CourseViewSet, basename='course')
+router.register(r"users", UserViewSet, basename="user")
+router.register(r"quiz", QuizViewSet, basename="quiz")
+router.register(r"course", CourseViewSet, basename="course")
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('auth/token/',jwt_views.TokenObtainPairView.as_view(),name="token_pair"),
-    path('auth/token/refresh/',jwt_views.TokenRefreshView.as_view(),name="token_pair_refresh"),
+    path("admin/", admin.site.urls),
+    path("auth/token/", jwt_views.TokenObtainPairView.as_view(), name="token_pair"),
+    path(
+        "auth/token/refresh/",
+        jwt_views.TokenRefreshView.as_view(),
+        name="token_pair_refresh",
+    ),
 ]
-urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
+# urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]
 urlpatterns += router.urls
-

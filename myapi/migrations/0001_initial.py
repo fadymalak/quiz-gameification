@@ -14,98 +14,240 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('auth', '0012_alter_user_first_name_max_length'),
+        ("auth", "0012_alter_user_first_name_max_length"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('password', models.CharField(max_length=128, verbose_name='password')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('email', models.EmailField(blank=True, max_length=254, verbose_name='email address')),
-                ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
-                ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
-                ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
-                ('id', models.IntegerField(db_index=True, primary_key=True, serialize=False)),
-                ('username', models.CharField(max_length=15, unique=True)),
-                ('last_name', models.CharField(max_length=15, validators=[django.core.validators.MinLengthValidator(limit_value=3)])),
-                ('first_name', models.CharField(max_length=15, validators=[django.core.validators.MinLengthValidator(limit_value=3)])),
-                ('bio', models.CharField(max_length=50)),
-                ('picture', models.URLField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('private', models.BooleanField(default=0)),
+                ("password", models.CharField(max_length=128, verbose_name="password")),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "is_superuser",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates that this user has all permissions without explicitly assigning them.",
+                        verbose_name="superuser status",
+                    ),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        blank=True, max_length=254, verbose_name="email address"
+                    ),
+                ),
+                (
+                    "is_staff",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates whether the user can log into this admin site.",
+                        verbose_name="staff status",
+                    ),
+                ),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True,
+                        help_text="Designates whether this user should be treated as active. Unselect this instead of deleting accounts.",
+                        verbose_name="active",
+                    ),
+                ),
+                (
+                    "date_joined",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now, verbose_name="date joined"
+                    ),
+                ),
+                (
+                    "id",
+                    models.IntegerField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                ("username", models.CharField(max_length=15, unique=True)),
+                (
+                    "last_name",
+                    models.CharField(
+                        max_length=15,
+                        validators=[
+                            django.core.validators.MinLengthValidator(limit_value=3)
+                        ],
+                    ),
+                ),
+                (
+                    "first_name",
+                    models.CharField(
+                        max_length=15,
+                        validators=[
+                            django.core.validators.MinLengthValidator(limit_value=3)
+                        ],
+                    ),
+                ),
+                ("bio", models.CharField(max_length=50)),
+                ("picture", models.URLField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("private", models.BooleanField(default=0)),
             ],
             options={
-                'verbose_name': 'user',
-                'verbose_name_plural': 'users',
-                'abstract': False,
+                "verbose_name": "user",
+                "verbose_name_plural": "users",
+                "abstract": False,
             },
             managers=[
-                ('objects', django.contrib.auth.models.UserManager()),
+                ("objects", django.contrib.auth.models.UserManager()),
             ],
         ),
         migrations.CreateModel(
-            name='Courses',
+            name="Courses",
             fields=[
-                ('id', models.IntegerField(db_index=True, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('name', models.CharField(max_length=25)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='course', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.IntegerField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("name", models.CharField(max_length=25)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="course",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Quiz',
+            name="Quiz",
             fields=[
-                ('id', models.IntegerField(db_index=True, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('title', models.CharField(max_length=150)),
-                ('end_at', models.DateTimeField(default=datetime.datetime(2022, 1, 21, 8, 56, 56, 586249))),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='quizs', to='myapi.courses')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('users', models.ManyToManyField(related_name='quizs', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.IntegerField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("title", models.CharField(max_length=150)),
+                (
+                    "end_at",
+                    models.DateTimeField(
+                        default=datetime.datetime(2022, 1, 21, 8, 56, 56, 586249)
+                    ),
+                ),
+                (
+                    "course",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="quizs",
+                        to="myapi.courses",
+                    ),
+                ),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "users",
+                    models.ManyToManyField(
+                        related_name="quizs", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Question',
+            name="Question",
             fields=[
-                ('id', models.IntegerField(db_index=True, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('title', models.CharField(max_length=150)),
-                ('point', models.IntegerField()),
-                ('option1', models.CharField(max_length=150)),
-                ('option2', models.CharField(max_length=150)),
-                ('option3', models.CharField(max_length=150)),
-                ('option4', models.CharField(max_length=150)),
-                ('correct_answer', models.IntegerField()),
-                ('quiz', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='questions', to='myapi.quiz')),
+                (
+                    "id",
+                    models.IntegerField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("title", models.CharField(max_length=150)),
+                ("point", models.IntegerField()),
+                ("option1", models.CharField(max_length=150)),
+                ("option2", models.CharField(max_length=150)),
+                ("option3", models.CharField(max_length=150)),
+                ("option4", models.CharField(max_length=150)),
+                ("correct_answer", models.IntegerField()),
+                (
+                    "quiz",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="questions",
+                        to="myapi.quiz",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Answer',
+            name="Answer",
             fields=[
-                ('id', models.IntegerField(db_index=True, primary_key=True, serialize=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('point', models.IntegerField()),
-                ('user_answer', models.IntegerField()),
-                ('question', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='anwsers', to='myapi.question')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='anwsers', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.IntegerField(
+                        db_index=True, primary_key=True, serialize=False
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("point", models.IntegerField()),
+                ("user_answer", models.IntegerField()),
+                (
+                    "question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="anwsers",
+                        to="myapi.question",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="anwsers",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='user',
-            name='courses',
-            field=models.ManyToManyField(related_name='users', to='myapi.Courses'),
+            model_name="user",
+            name="courses",
+            field=models.ManyToManyField(related_name="users", to="myapi.Courses"),
         ),
         migrations.AddField(
-            model_name='user',
-            name='groups',
-            field=models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups'),
+            model_name="user",
+            name="groups",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+                related_name="user_set",
+                related_query_name="user",
+                to="auth.Group",
+                verbose_name="groups",
+            ),
         ),
         migrations.AddField(
-            model_name='user',
-            name='user_permissions',
-            field=models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions'),
+            model_name="user",
+            name="user_permissions",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Specific permissions for this user.",
+                related_name="user_set",
+                related_query_name="user",
+                to="auth.Permission",
+                verbose_name="user permissions",
+            ),
         ),
     ]

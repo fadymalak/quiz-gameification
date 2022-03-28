@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('myapi', '0001_initial'),
+        ("myapi", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='quiz',
-            name='end_at',
-            field=models.DateTimeField(default=datetime.datetime(2022, 1, 21, 9, 7, 54, 148165)),
+            model_name="quiz",
+            name="end_at",
+            field=models.DateTimeField(
+                default=datetime.datetime(2022, 1, 21, 9, 7, 54, 148165)
+            ),
         ),
     ]

@@ -1,13 +1,25 @@
 from rest_framework.permissions import BasePermission , SAFE_METHODS 
-from myapi.models import User ,Courses
+from myapi.models import Quiz, User ,Courses
 from django.urls import resolve
 
 class IsCourseOwner(BasePermission):
 
     def has_permission(self, request, view):
+ 
         course_id = request.data['course']
         query = Courses.objects.get(id=course_id)
         
+        return request.user.is_staff and (request.user == query.owner)
+    
+class IsQuizOwner(BasePermission):
+    
+    def has_permission(self, request, view):
+        if request.method == "POST":
+            return IsCourseOwner.has_permission(self,request,view)
+        pk = resolve(request.path_info).kwargs['pk']
+        print("PK -> ",pk)
+        query = Quiz.objects.get(id=pk)
+        print(query)
         return request.user.is_staff and (request.user == query.owner)
     
 

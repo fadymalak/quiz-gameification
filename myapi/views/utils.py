@@ -1,1 +1,1 @@
-REQUIRED_OWNER =["create","delete","update","partial_update"]
+REQUIRED_OWNER = ["create", "destroy", "update", "partial_update"]

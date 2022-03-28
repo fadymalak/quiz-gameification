@@ -8,39 +8,41 @@ import myapi.managers.user_manager
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('myapi', '0007_alter_quiz_end_at_alter_user_id'),
+        ("myapi", "0007_alter_quiz_end_at_alter_user_id"),
     ]
 
     operations = [
         migrations.AlterModelManagers(
-            name='user',
+            name="user",
             managers=[
-                ('objects', myapi.managers.user_manager.CustomUserManager()),
+                ("objects", myapi.managers.user_manager.CustomUserManager()),
             ],
         ),
         migrations.AlterField(
-            model_name='answer',
-            name='id',
+            model_name="answer",
+            name="id",
             field=models.AutoField(db_index=True, primary_key=True, serialize=False),
         ),
         migrations.AlterField(
-            model_name='courses',
-            name='id',
+            model_name="courses",
+            name="id",
             field=models.AutoField(db_index=True, primary_key=True, serialize=False),
         ),
         migrations.AlterField(
-            model_name='question',
-            name='id',
+            model_name="question",
+            name="id",
             field=models.AutoField(db_index=True, primary_key=True, serialize=False),
         ),
         migrations.AlterField(
-            model_name='quiz',
-            name='end_at',
-            field=models.DateTimeField(default=datetime.datetime(2022, 1, 24, 10, 37, 25, 294848)),
+            model_name="quiz",
+            name="end_at",
+            field=models.DateTimeField(
+                default=datetime.datetime(2022, 1, 24, 10, 37, 25, 294848)
+            ),
         ),
         migrations.AlterField(
-            model_name='quiz',
-            name='id',
+            model_name="quiz",
+            name="id",
             field=models.AutoField(db_index=True, primary_key=True, serialize=False),
         ),
     ]

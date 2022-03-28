@@ -8,28 +8,36 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('myapi', '0003_alter_quiz_end_at'),
+        ("myapi", "0003_alter_quiz_end_at"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='quiz',
-            name='end_at',
-            field=models.DateTimeField(default=datetime.datetime(2022, 1, 21, 9, 25, 0, 628304)),
+            model_name="quiz",
+            name="end_at",
+            field=models.DateTimeField(
+                default=datetime.datetime(2022, 1, 21, 9, 25, 0, 628304)
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='first_name',
-            field=models.CharField(max_length=25, validators=[django.core.validators.MinLengthValidator(limit_value=3)]),
+            model_name="user",
+            name="first_name",
+            field=models.CharField(
+                max_length=25,
+                validators=[django.core.validators.MinLengthValidator(limit_value=3)],
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='last_name',
-            field=models.CharField(max_length=25, validators=[django.core.validators.MinLengthValidator(limit_value=3)]),
+            model_name="user",
+            name="last_name",
+            field=models.CharField(
+                max_length=25,
+                validators=[django.core.validators.MinLengthValidator(limit_value=3)],
+            ),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='username',
+            model_name="user",
+            name="username",
             field=models.CharField(max_length=25, unique=True),
         ),
     ]

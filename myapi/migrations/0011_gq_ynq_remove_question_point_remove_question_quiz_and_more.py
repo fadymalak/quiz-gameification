@@ -8,79 +8,104 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('myapi', '0010_alter_quiz_end_at'),
+        ("myapi", "0010_alter_quiz_end_at"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='GQ',
+            name="GQ",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('deleted', models.IntegerField(default=0)),
-                ('title', models.TextField()),
-                ('image', models.ImageField(default='', upload_to='')),
-                ('correct_answer', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
+                ("deleted", models.IntegerField(default=0)),
+                ("title", models.TextField()),
+                ("image", models.ImageField(default="", upload_to="")),
+                ("correct_answer", models.TextField()),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='YNQ',
+            name="YNQ",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('deleted', models.IntegerField(default=0)),
-                ('title', models.TextField()),
-                ('image', models.ImageField(default='', upload_to='')),
-                ('correct_answer', models.CharField(choices=[('T', 'True'), ('T', 'False')], max_length=1)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
+                ("deleted", models.IntegerField(default=0)),
+                ("title", models.TextField()),
+                ("image", models.ImageField(default="", upload_to="")),
+                (
+                    "correct_answer",
+                    models.CharField(
+                        choices=[("T", "True"), ("T", "False")], max_length=1
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.RemoveField(
-            model_name='question',
-            name='point',
+            model_name="question",
+            name="point",
         ),
         migrations.RemoveField(
-            model_name='question',
-            name='quiz',
+            model_name="question",
+            name="quiz",
         ),
         migrations.AddField(
-            model_name='question',
-            name='deleted',
+            model_name="question",
+            name="deleted",
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='question',
-            name='image',
-            field=models.ImageField(default='', upload_to=''),
+            model_name="question",
+            name="image",
+            field=models.ImageField(default="", upload_to=""),
         ),
         migrations.AlterField(
-            model_name='question',
-            name='correct_answer',
+            model_name="question",
+            name="correct_answer",
             field=models.TextField(),
         ),
         migrations.AlterField(
-            model_name='question',
-            name='created_at',
+            model_name="question",
+            name="created_at",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AlterField(
-            model_name='question',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="question",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+            ),
         ),
         migrations.AlterField(
-            model_name='question',
-            name='title',
+            model_name="question",
+            name="title",
             field=models.TextField(),
         ),
         migrations.AlterField(
-            model_name='quiz',
-            name='end_at',
-            field=models.DateTimeField(default=datetime.datetime(2022, 3, 11, 11, 5, 39, 507108)),
+            model_name="quiz",
+            name="end_at",
+            field=models.DateTimeField(
+                default=datetime.datetime(2022, 3, 11, 11, 5, 39, 507108)
+            ),
         ),
     ]

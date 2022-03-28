@@ -1,5 +1,4 @@
-
-TEMPLATE =  '''{% firstof exception_type 'Report' %}{% if request %} at {{ request.path_info }}{% endif %}
+TEMPLATE = """{% firstof exception_type 'Report' %}{% if request %} at {{ request.path_info }}{% endif %}
 {% firstof exception_value No exception message supplied %}
 {% if request %}
 Request Method: {{ request.META.REQUEST_METHOD }}
@@ -21,4 +20,4 @@ data :
 {%for k ,v in data %}-> {{ k }} : {{ v  }}
 {% endfor %}
 
-'''
+"""

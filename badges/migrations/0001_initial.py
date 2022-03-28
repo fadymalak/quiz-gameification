@@ -14,13 +14,26 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Badge',
+            name="Badge",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=150)),
-                ('image', models.ImageField(upload_to='upload/badges/')),
-                ('points', models.IntegerField()),
-                ('users', models.ManyToManyField(related_name='badges', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=150)),
+                ("image", models.ImageField(upload_to="upload/badges/")),
+                ("points", models.IntegerField()),
+                (
+                    "users",
+                    models.ManyToManyField(
+                        related_name="badges", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
         ),
     ]

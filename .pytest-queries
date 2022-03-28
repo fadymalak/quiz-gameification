@@ -1,0 +1,8 @@
+{
+  "myapi.tests.tests_views.test_permission": {
+    "test_retreive_quiz_endpoint[True-True-201]": {
+      "query-count": 4,
+      "duplicates": 0
+    }
+  }
+}
