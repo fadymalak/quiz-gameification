@@ -32,7 +32,7 @@ def test_question_deserializer_create(r, CREATE_QUESTION):
     result = serial2.data
     print(result)
     assert result["item"]["owner"] == CREATE_QUESTION.owner.username
-    #TODO check api delete:int   type str or int
+    # TODO check api delete:int   type str or int
     assert int(result["deleted"]) == 0
 
 

@@ -1,11 +1,11 @@
 from django.contrib.auth.models import Permission
 from django.http.response import JsonResponse
-from django.db import transaction 
-from django.db.models import Q , Prefetch
+from django.db import transaction
+from django.db.models import Q, Prefetch
 from django.urls import resolve
 import time
 from django.shortcuts import get_object_or_404
-from django.db import connection , reset_queries
+from django.db import connection, reset_queries
 from rest_framework.decorators import permission_classes, renderer_classes
 from rest_framework.response import Response
 from rest_framework.settings import import_from_string
@@ -26,6 +26,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, AND, OR
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.permissions import SAFE_METHODS
 from .utils import REQUIRED_OWNER
+
 
 class QuizViewSet(ModelViewSet):
     """
@@ -79,7 +80,12 @@ class QuizViewSet(ModelViewSet):
         exist = user.quizs.filter(id=quiz_id).exists()
         if exist:
             return Response(status=status.HTTP_204_NO_CONTENT)
-        instance = Quiz.objects.filter(id=self.kwargs['pk']).select_related("owner","course").prefetch_related("questions","questions__item","questions__item__owner").get()
+        instance = (
+            Quiz.objects.filter(id=self.kwargs["pk"])
+            .select_related("owner", "course")
+            .prefetch_related("questions", "questions__item", "questions__item__owner")
+            .get()
+        )
         user.quizs.add(instance)
         serializer = self.get_serializer(instance)
         result = serializer.data

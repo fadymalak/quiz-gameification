@@ -7,6 +7,8 @@ from django.test.utils import CaptureQueriesContext
 from django.db import connection
 import datetime
 from rest_framework import status
+
+
 @pytest.mark.test
 @pytest.mark.django_db
 @pytest.mark.parametrize(
@@ -34,6 +36,7 @@ def test_acceptance_CREATE_quiz_endpoint(API, teacher, own, result):
     )
     request = API.post("/quiz/", data=data)
     assert request.status_code == result
+
 
 @pytest.mark.test
 @pytest.mark.django_db
@@ -123,19 +126,20 @@ def test_retreive_quiz_endpoint(API, teacher, own, result):
     question_item = MCQFactory.create()
     question_item2 = MCQFactory.create()
     question_item3 = GQFactory.create()
-    question = QuestionFactory.create(item=question_item,quiz=quiz)
-    question = QuestionFactory.create(item=question_item2,quiz=quiz)
-    question = QuestionFactory.create(item=question_item3,quiz=quiz)
-    #get all queries
+    question = QuestionFactory.create(item=question_item, quiz=quiz)
+    question = QuestionFactory.create(item=question_item2, quiz=quiz)
+    question = QuestionFactory.create(item=question_item3, quiz=quiz)
+    # get all queries
     with CaptureQueriesContext(connection) as ctx:
         req = API.get(f"/quiz/{quiz.id}/")
     x = ctx.captured_queries
     print(f"[*] length : {len(x)}")
     for i in x:
-        print("-> ",i['sql'])
+        print("-> ", i["sql"])
     assert req.status_code == 200
-    assert req.data['title'] == quiz.title
-    assert len(req.data['questions']) == 3
+    assert req.data["title"] == quiz.title
+    assert len(req.data["questions"]) == 3
+
 
 @pytest.mark.test
 @pytest.mark.django_db
@@ -144,14 +148,12 @@ def test_retreive_quiz_endpoint(API, teacher, own, result):
     [(True, True, 201), (False, False, 403), (False, True, 403), (True, False, 403)],
 )
 def test_list_quiz_endpoint(API, teacher, own, result):
-    #TODO fetch only course quizs
+    # TODO fetch only course quizs
     LENGTH = 4
     user = UserFactory.create()
     API.force_authenticate(user=user)
     course = CourseFactory.create(owner=user)
-    quiz = QuizFactory.create_batch(LENGTH,course=course)
+    quiz = QuizFactory.create_batch(LENGTH, course=course)
     req = API.get("/quiz/")
 
     assert LENGTH == len(req.data)
-    
-    

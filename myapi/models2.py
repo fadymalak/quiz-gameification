@@ -25,7 +25,7 @@ class BaseItem(models.Model):
 
 class Question(models.Model):
     quiz = models.ForeignKey("Quiz", related_name="questions", on_delete=models.CASCADE)
-    deleted = models.CharField(max_length=1,default="0")
+    deleted = models.IntegerField(default=0)
     qid = models.PositiveBigIntegerField(auto_created=True)
     content_type = models.ForeignKey(
         ContentType,

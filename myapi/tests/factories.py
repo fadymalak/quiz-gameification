@@ -75,7 +75,7 @@ class QuestionFactory(factory.django.DjangoModelFactory):
 
 
 class BaseQuestionFactory(factory.django.DjangoModelFactory):
-    #deleted = 0  # fixed Value
+    # deleted = 0  # fixed Value
     title = factory.Sequence(lambda n: "Question %s" % (n))
     image = "/image/1.png"  # fixed value
     owner = factory.SubFactory(UserFactory)

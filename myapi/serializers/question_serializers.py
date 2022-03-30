@@ -111,7 +111,6 @@ class QuestionField(serializers.RelatedField):
 
 class QuestionSerializer(serializers.ModelSerializer):
     item = QuestionField()
-    
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -121,7 +120,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ["quiz", "point", "item", "id","deleted"]
+        fields = ["quiz", "point", "item", "id", "deleted"]
 
     def create(self, validated_data):
         item_data = validated_data["item"]

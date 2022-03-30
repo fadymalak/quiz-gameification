@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('myapi', '0017_answer_status_alter_answer_user_answer_and_more'),
+        ("myapi", "0017_answer_status_alter_answer_user_answer_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ynq',
-            name='correct_answer',
-            field=models.CharField(choices=[('T', 'True'), ('F', 'False')], max_length=3),
+            model_name="ynq",
+            name="correct_answer",
+            field=models.CharField(
+                choices=[("T", "True"), ("F", "False")], max_length=3
+            ),
         ),
     ]
