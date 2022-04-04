@@ -11,7 +11,7 @@ from ..serializers.course_serializers import CourseDetailSerializer, CourseSeria
 from django.db.models import Q, Value, F
 from django.db.models.functions import Concat
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from myapi.permissions import IsTeacher, IsEnrolled
+from myapi.permissions import *
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -19,13 +19,19 @@ from rest_framework import status
 class CourseViewSet(ModelViewSet):
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
     permission_classes = [
-        ((IsEnrolled | IsTeacher) & IsAuthenticated),
+        CoursePermission , IsAuthenticated,
     ]
 
     def get_permissions(self):
         if self.action == "create":
             permission_classes = [IsTeacher, IsAuthenticated]
             return [permission() for permission in permission_classes]
+        elif self.action == "list":
+            print("List")
+            permission_classes = [ IsAuthenticated]
+
+            return [permission() for permission in permission_classes]
+        print("else")
         return super().get_permissions()
 
     def get_serializer_class(self):
@@ -56,7 +62,7 @@ class CourseViewSet(ModelViewSet):
     def create(self, request):
         """'
         Create New Course
-        set owner :param request.user.id
+        __Note: __owner__ param is set by default : request.user.id
         """
         data = request.data.copy()
         # data = QueryDict(data)
@@ -67,5 +73,3 @@ class CourseViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-        # else:
-        # return Response(data=serializer.errors,status=status.HTTP_406_NOT_ACCEPTABLE)

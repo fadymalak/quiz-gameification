@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # "silk",
+    "drf_yasg",
     "rest_framework",
     "myapi",
     "badges",
@@ -64,7 +65,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "myapi.middleware.SimpleMiddleware",
-    # "silk.middleware.SilkyMiddleware",
     "myapi.middleware.StatsMiddleware",
 ]
 
@@ -155,5 +155,7 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+HASHID_FIELD_SALT = "67jsdg8sdug89sdfi3fdasdf"
+# DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+DEFAULT_AUTO_FIELD = "hashid_field.BigHashidAutoField"
+# DEFAULT_AUTO_FIELD = "django.db.models.UUIDField"

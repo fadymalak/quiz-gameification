@@ -107,7 +107,7 @@ class QuizViewSet(ModelViewSet):
 
     @transaction.atomic
     @action(
-        methods=["GET", "POST"],
+        methods=["POST",],
         detail=True,
         url_name="submit_asnwer",
         url_path="submit-answer",

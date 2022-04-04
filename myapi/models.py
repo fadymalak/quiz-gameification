@@ -14,7 +14,7 @@ from .models2 import Question
 
 class User(AbstractUser):
 
-    id = models.AutoField(db_index=True, primary_key=True, serialize=True)
+    # id = models.AutoField(db_index=True, primary_key=True, serialize=True)
     username = models.CharField(max_length=25, unique=True, null=False)
     last_name = models.CharField(
         max_length=25, validators=[MinLengthValidator(limit_value=3)]
@@ -50,7 +50,7 @@ class User(AbstractUser):
 
 
 class Courses(models.Model):
-    id = models.AutoField(db_index=True, primary_key=True)
+    # id = models.AutoField(db_index=True, primary_key=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -75,7 +75,7 @@ class Courses(models.Model):
 
 
 class Quiz(models.Model):
-    id = models.AutoField(db_index=True, primary_key=True)
+    # id = models.AutoField(db_index=True, primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=150)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)

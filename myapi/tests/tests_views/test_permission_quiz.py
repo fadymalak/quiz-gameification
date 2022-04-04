@@ -1,3 +1,4 @@
+from flask_login import user_loaded_from_cookie
 from rest_framework.test import APIClient
 import pytest
 from myapi.serializers.quiz_serializers import QuizDetailSerializer
@@ -75,6 +76,27 @@ def test_acceptance_DELETE_quiz_endpoint(API, teacher, own, result):
 
 @pytest.mark.test
 @pytest.mark.django_db
+def test_acceptance_DELETE_quiz_endpoint_student(API):
+    u = UserFactory.create()
+
+    c = CourseFactory.create(owner=u)
+    quiz = QuizFactory.create(owner=u, course=c)
+    student = UserFactory.create()
+    API.force_authenticate(user=student)
+    student.courses.add(c)
+    student.save()
+    before = Quiz.objects.filter(id=quiz.id).count()
+    data = {"course": c.id}
+    request = API.delete(f"/quiz/{quiz.id}/")
+    after_result = Quiz.objects.filter(id=quiz.id).count()
+
+    print(request.status_code)
+    assert before == 1
+    assert after_result == 1
+    assert request.status_code == 403
+
+@pytest.mark.test
+@pytest.mark.django_db
 @pytest.mark.parametrize(
     "teacher,own,result",
     [(True, True, 200), (False, False, 403), (False, True, 403), (True, False, 403)],
@@ -112,8 +134,6 @@ def test_update_quiz_endpoint(API, teacher, own, result):
 
 @pytest.mark.test
 @pytest.mark.django_db
-@pytest.mark.curr
-# @pytest.mark.count_queries
 @pytest.mark.parametrize(
     "teacher,own,result",
     [(True, True, 201), (False, False, 403), (False, True, 403), (True, False, 403)],

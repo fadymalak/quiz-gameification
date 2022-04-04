@@ -3,26 +3,43 @@ from myapi.models import User
 from django.utils import timezone
 
 # Create your models here.
-class Rule(models.Model):
-    CHOICES = [
-        ("POINT", "POINT"),
-        ("NUMBER_OF_QUIZS", "NUMBER_OF_QUIZS"),
-        ("NUMBER_OF_CORRECT_QUESTION", "NUMBER_OF_CORRECT_QUESTION"),
-        ("ACTIVE", "ACTIVE"),
-    ]
-    name = models.CharField(max_length=150)
-    require_type = models.CharField(max_length=40, choices=CHOICES)
-    require = models.IntegerField()
+class Achievement(models.Model):
+    name = models.TextField()
+    owner = models.ForeignKey(User,on_delete=models.CASCADE)
+
+class AchievementLevel(models.Model):
+    achievement = models.ForeignKey(Achievement,on_delete=models.CASCADE)
+    parent = models.ForeignKey("self",null=True,on_delete=models.CASCADE)
+    owner = models.ForeignKey(User,on_delete=models.CASCADE)
+    name = models.TextField()
+    image = models.ImageField()
+
+class UserAchievement(models.Model):
+    user = models.ForeignKey(User,related_name="achievements",on_delete=models.CASCADE)
+    achievement_level = models.ForeignKey(AchievementLevel,on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Variable(models.Model):
+    name = models.TextField()
+
+class Rules(models.Model):
+    achievement_level = models.ForeignKey(AchievementLevel,related_name="rules",on_delete=models.CASCADE)
+    formula = models.TextField()
+    interval = models.DurationField()
+    evalution_type = models.CharField(max_length=10)
+    variable = models.ForeignKey(Variable,related_name="rule",on_delete=models.CASCADE)
+    group_key = models.IntegerField()
+
+class VariableUser(models.Model):
+    user = models.ForeignKey(User,related_name="variables",on_delete=models.CASCADE)
+    variable = models.ForeignKey(Variable,on_delete=models.CASCADE)
+    value = models.PositiveBigIntegerField()
+    update_at = models.DateTimeField(auto_now=True)
 
 
-class Badge(models.Model):
-    name = models.CharField(max_length=150, null=False)
-    image = models.ImageField(upload_to="upload/badges/")
-    rules = models.ManyToManyField(Rule, related_name="badges")
-    created_at = models.DateTimeField(default=timezone.now)
-    enable = models.IntegerField(default=1)
-    users = models.ManyToManyField(User, related_name="badges")
+class VariableUserDetials(models.Model):
+    variable_user = models.ForeignKey(VariableUser,related_name="detials",on_delete=models.CASCADE)
+    value = models.PositiveBigIntegerField()
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now = True)
 
-
-hash = "e753fd0cc82896cf3aa22aa8af51bab8"
-api = "11385097"

@@ -20,12 +20,32 @@ from myapi.views.quiz_views import QuizViewSet
 from myapi.views.courses_views import CourseViewSet
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt import views as jwt_views
+from rest_framework_nested import routers
+from badges.views import achievements , rules
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework import permissions
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Snippets API",
+      default_version='v1',
+      description="Test description",
+      terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="contact@snippets.local"),
+      license=openapi.License(name="BSD License"),
+   ),
+   public=True,
+   permission_classes=[permissions.AllowAny],
+)
 
 router = DefaultRouter()
 router.register(r"users", UserViewSet, basename="user")
 router.register(r"quiz", QuizViewSet, basename="quiz")
 router.register(r"course", CourseViewSet, basename="course")
-
+router.register(r"achievement",achievements.AchievementViewSet)
+achievement = routers.NestedSimpleRouter(router,r'achievement',lookup='achievement_level')
+achievement.register(r'rules',rules.RulesViewSet,basename='achievement-level-rules')
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("auth/token/", jwt_views.TokenObtainPairView.as_view(), name="token_pair"),
@@ -34,6 +54,11 @@ urlpatterns = [
         jwt_views.TokenRefreshView.as_view(),
         name="token_pair_refresh",
     ),
+       path(r'swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
+   path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+   path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+
 ]
 # urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]
 urlpatterns += router.urls
+urlpatterns += achievement.urls

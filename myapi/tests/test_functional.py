@@ -26,8 +26,9 @@ def test_e2e_courses_get_queryset(API, SUPER_LOGIN):
 # @pytest.mark.e2e
 @pytest.mark.django_db
 def test_functional_get_course_by_id(API, SUPER_LOGIN):
-    user = UserFactory.create()
+    user = UserFactory.create(is_staff=1)
     course = CourseFactory.create(owner=user)
+    API.force_authenticate(user=user)
     req = API.get("/course/%s/" % (course.id))
     data = req.json()
     print(data)

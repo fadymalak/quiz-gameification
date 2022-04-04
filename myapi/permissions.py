@@ -41,6 +41,7 @@ class IsSameUser(BasePermission):
 class IsTeacher(BasePermission):
     def has_permission(self, request, view):
         # user = User.objects.get(id =request.user.id)
+        #TODO allow access others quizs `permission_issue`
         if request.method in SAFE_METHODS:
             return True
 
@@ -93,3 +94,25 @@ class IsEnrolledOrTeacher(BasePermission):
         return IsEnrolled.has_object_permission(
             *args, **kwargs
         ) or IsTeacher.has_object_permission(*args, **kwargs)
+
+class CoursePermission(BasePermission):
+    def has_permission(self, request, view):
+        course_id = resolve(request.path_info).kwargs['pk']
+        user = request.user
+        if user.courses.filter(id=course_id).exists():
+            return True
+        if user.is_staff :
+            obj = Courses.objects.prefetch_related("owner").only("owner").get(id=course_id)
+            if obj.owner == user:
+                return True
+
+        return False
+    
+    def has_object_permission(self, request, view,obj):
+        print("hello")
+        user = request.user
+        if user.is_staff :
+            if obj.owner == user:
+                return True
+            else:
+                return False
