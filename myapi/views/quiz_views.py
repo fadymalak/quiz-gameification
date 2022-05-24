@@ -1,109 +1,106 @@
 from django.contrib.auth.models import Permission
+from django.http import Http404
 from django.http.response import JsonResponse
 from django.db import transaction
 from django.db.models import Q, Prefetch
 from django.urls import resolve
 import time
-from django.shortcuts import get_object_or_404
+from requests import delete
+
+from telegram import PassportElementErrorSelfie
+from myapi.serializers.course_serializers import CourseSerial
+from myapi.services.course import CourseService
+from myapi.services.quiz import AnswerService, QuestionService, QuizService
+from django.shortcuts import get_object_or_404 , get_list_or_404
 from django.db import connection, reset_queries
 from rest_framework.decorators import permission_classes, renderer_classes
 from rest_framework.response import Response
+from rest_framework.decorators import  api_view
 from rest_framework.settings import import_from_string
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import  ViewSet 
 from rest_framework import serializers, status
-from ..models import Quiz
+from ..models import Quiz , Answer
 from ..models2 import *
 from ..serializers.quiz_serializers import (
-    QuizSerializers,
-    QuizDetailSerializer,
-    AnswerSerializer,
-    SubmitAnswerSerializer,
+    QuizSerial , AnswerSerial , QuizDetailSerial
+    
 )
-from ..permissions import *
+from serpyco import Serializer
+from myapi.usecase.quiz import answer_list, quiz_create, quiz_get,\
+ quiz_list, quiz_update,quiz_delete,answers_create
+from ..perm import *
+from django.views.generic.detail import SingleObjectMixin
 from rest_framework.decorators import action
-from rest_framework.parsers import JSONParser
-from rest_framework.permissions import IsAuthenticated, AllowAny, AND, OR
-from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
-from rest_framework.permissions import SAFE_METHODS
-from .utils import REQUIRED_OWNER
+from myapi.mixin import PermissionMixin , OnlyUserMixin ,CustomDispatchMixin
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer 
+
+from rest_framework.generics import ListAPIView
+from myapi.permissions.permissions import QuizPermission , AnswerPermission
+from myapi.views.view import CustomViewset 
+
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import AuthenticationFailed
 
 
-class QuizViewSet(ModelViewSet):
+class QuizViewSet(OnlyUserMixin,PermissionMixin,SingleObjectMixin,ViewSet):
     """
     Viewset to ``list/update/delete`` quiz
         ``retieve`` quiz Question
         and ``submit_answer`` for question
     """
-
+    service = QuizService
+    permission = QuizPermission
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
-    permission_classes = [IsEnrolledOrTeacher, IsAuthenticated]
+    model = Quiz
+    pk_url_kwarg = "quiz_id"
 
-    serializer_class = QuizSerializers
 
-    def get_permissions(self):
-        print(self.request.query_params)
-        if self.action in REQUIRED_OWNER:
-            permission_class = [IsQuizOwner, IsAuthenticated]
-            return [permission() for permission in permission_class]
-        print(super().get_permissions())
-        return super().get_permissions()
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        data = request.data
+        self.check_permission("create_quiz",request)
+        quiz = quiz_create(**data,owner=user)
+        return Response(data=QuizSerial.dump(quiz),status=status.HTTP_201_CREATED)
 
-    def get_serializer_class(self):
-        if self.action in REQUIRED_OWNER or self.action == "list":
-            return QuizSerializers
-        return QuizDetailSerializer
-
-    def get_queryset(self):
-        print("hlllo")
-        if self.action in REQUIRED_OWNER:
-            print("hlllo2")
-            pk = resolve(self.request.path_info).kwargs["pk"]
-            print("hlllo3")
-            quiz = Quiz.objects.filter(id=pk)
-            print("count ->", quiz)
-            return quiz
-        return Quiz.objects.all()
-
-    def perform_create(self, serializer):
-        """
-        ``perform_create`` is called after ``.is_vaild()`` in ``create`` method
-        """
-        serializer.save(owner=self.request.user)
-
-    def retrieve(self, request, *args, **kwargs):
+    def get(self,request,*args,**kwargs):
         """
         Retrieve question from quiz to solve it (user click start quiz)
         and add it To User.quizs to stop from retrieve it again
         """
-        quiz_id = self.kwargs[self.lookup_field]
         user = request.user
-        exist = user.quizs.filter(id=quiz_id).exists()
-        if exist:
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        instance = (
-            Quiz.objects.filter(id=self.kwargs["pk"])
-            .select_related("owner", "course")
-            .prefetch_related("questions", "questions__item", "questions__item__owner")
-            .get()
-        )
-        user.quizs.add(instance)
-        serializer = self.get_serializer(instance)
-        result = serializer.data
+        quiz_id = kwargs['quiz_id']
+        obj = quiz_get(quiz_id,user)
+        self.check_permission("view_quiz",request,obj=obj)
+        return Response(
+                    QuizDetailSerial.dump(obj),
+                        status=status.HTTP_200_OK
+                        )
 
-        return Response(result, status=status.HTTP_200_OK)
+    def list(self, request, *args, **kwargs):
+        ''' List Quiz by Course id'''
+        course_id = kwargs.get("course_id",None)
+        self.check_permission("list_quiz",request)
+        if course_id is not None:
+            data = quiz_list(course_id)
+            return Response(QuizSerial.dump(data,many=True),status=status.HTTP_200_OK)
+        raise Http404
 
-    def partial_update(self, request, *args, **kwargs):
-        instance = self.get_object()
+    def put(self,request,*args,**kwargs): 
+        raise Http404
+
+    def patch(self,request,*args,**kwargs):
+        obj = self.get_object()
+        self.check_permission("edit_quiz",request,None,obj)
         data = request.data
-        data["course"] = data["course"]["id"]
-        serial = self.get_serializer(instance, data=data, partial=True)
-        serial.is_valid(raise_exception=True)
-        serial.save()
-        return Response(data=serial.data)
+        update = quiz_update(data,obj)
+        return Response(QuizSerial.dump(update),status=status.HTTP_200_OK)
 
-    def update(self, request, *args, **kwargs):
-        print("Before update2")
-        return super().update(request, *args, **kwargs)
+    def delete(self,request,course_id,quiz_id,*args,**kwargs):
+        self.check_permission("delete_quiz",request)
+        quiz = quiz_delete(quiz_id)
+        if quiz:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     @transaction.atomic
     @action(
@@ -111,52 +108,55 @@ class QuizViewSet(ModelViewSet):
         detail=True,
         url_name="submit_asnwer",
         url_path="submit-answer",
-        permission_classes=[IsEnrolledOrTeacher],
+        permission = AnswerPermission,
     )
-    def submit_answer(self, request, pk):
+    def submit_answer(self, request, *args,**kwargs):
         """
         When User Submit New Answer
         Default user_answer:0 (Wrong)
         """
+        answers = answers_create(request)
+        return Response(data=AnswerSerial.dump(answers,many=True),status=status.HTTP_201_CREATED)
 
-        # questions = SubmitAnswerSerializer(data=request.data)
-        # questions.is_valid(raise_exception=True)
-        # questions = questions.validated_data
-        # print(type(questions))
-        # print(questions)
-        questions = request.data
-        # print(questions['data'][0])
-        for param in questions:
-            question = get_object_or_404(Question, id=param["id"])
-            data = {
-                "point": 0,
-                "user_answer": "",
-                "question": question.id,
-                "user": request.user.id,
-                "status": "COMPLETED",
-            }
 
-            try:
+class AnswerViewset(CustomDispatchMixin,CustomViewset):
+    service = AnswerService
+    pk_url_kwarg: str = "answer_id"
+    model: Model = Answer
+    permission: BasePermission = AnswerPermission
+    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
-                answer = question.item.correct_answer
-                if isinstance(question.item, GQ):
-                    # manual grade for GeneralQuestion/paragraph
-                    data["status"] = "PENDING"
-                print("type of question ->", str(answer), type(answer))
-                print(
-                    "type of answer ->",
-                    str(param["user_answer"]),
-                    type(param["user_answer"]),
-                )
-                if answer == str(param["user_answer"]):
-                    # Add points to user if ``correct answer`` else keep point = 0
-                    data["point"] = question.point
-                data["user_answer"] = param["user_answer"]
-                serializer = AnswerSerializer(data=data)
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
+    def get(self, request, *args, **kwargs):
+        answer = AnswerService.get_by_id(self.kwargs['answer_id'])
 
-            except Exception as e:
-                return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+        self.check_permission("view_answer",request,obj=answer)
+        return Response(data=AnswerSerial.dump(answer),status=200)
 
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+    def list(self, request, *args, **kwargs):
+        quiz = QuizService.get_by_id(self.kwargs['quiz_id'])
+        self.check_permission("list_answer",request,obj=quiz)
+        answers = answer_list(request.user,quiz)
+        answers = [answer for answer in answers]
+        return Response(data=AnswerSerial.dump(answers,many=True),status=200)
+
+    def post(self, request, *args, **kwargs):
+        """
+        When User Submit New Answer
+        Default user_answer:0 (Wrong)
+        """
+        quiz = QuizService.get_by_id(self.kwargs['quiz_id'])
+        self.check_permission("create_answer",request,obj=quiz)
+        answers = answers_create(request)
+        return Response(data=AnswerSerial.dump(answers,many=True),status=status.HTTP_201_CREATED)
+
+    def patch(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def put(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def delete(self, request, *args, **kwargs):
+        course_id = self.kwargs['course_id']
+        course = CourseService.get_by_id_o(course_id)
+        self.check_permission("delete_answer",request,obj=course)
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -11,7 +11,7 @@ class Username(Serializer):
     
 class SubAchievementLevelSerializer(serializers.ModelSerializer):
     name = serializers.CharField()
-    image = models.ImageField()
+    image = models.URLField()
     class Meta:
         model = AchievementLevel
         fields = ("name","image")

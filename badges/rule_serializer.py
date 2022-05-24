@@ -12,6 +12,7 @@ class VariableSerializer(serializers.ModelSerializer):
 
 class RulesSerializer(serializers.ModelSerializer):
     variable = VariableSerializer()
+    group_key = serializers.IntegerField(required=False)
     class Meta:
         model = Rules
         fields = "__all__"

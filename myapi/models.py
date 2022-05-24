@@ -32,6 +32,7 @@ class User(AbstractUser):
 
     @property
     def full_name(self):
+
         return str(self.first_name + " " + self.last_name)
 
     @cached_property
@@ -67,6 +68,7 @@ class Courses(models.Model):
     def oname(self):
         """
         self.owner.name
+        Law of demeter
         """
         return self.owner.first_name + " " + self.owner.last_name
 

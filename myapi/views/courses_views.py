@@ -11,8 +11,8 @@ from ..serializers.course_serializers import CourseDetailSerializer, CourseSeria
 from django.db.models import Q, Value, F
 from django.db.models.functions import Concat
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from myapi.permissions import *
 from rest_framework.response import Response
+from myapi.perm import CoursePermission , IsTeacher
 from rest_framework import status
 
 

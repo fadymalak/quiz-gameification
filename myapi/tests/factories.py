@@ -8,14 +8,19 @@ from django.contrib.contenttypes.models import ContentType
 import random
 from .utils import update
 import factory.fuzzy
-
+import datetime
+def rando():
+    d = datetime.datetime.timestamp(datetime.datetime.now())
+    d = int(d)
+    r = random.randint(1,99)
+    return int(str(d)+str(r)) +random.randint(1,100000)
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
     # BUGFIX If id not provided object will return id None
-    id = factory.Sequence(lambda n: int(n))  # LazyAttribute(lambda _ :update('u'))
+    id = factory.Sequence(lambda _: rando())  # LazyAttribute(lambda _ :update('u'))
     username = factory.faker.Faker("user_name")
     last_name = factory.faker.Faker("first_name")
     first_name = factory.faker.Faker("first_name")
@@ -25,7 +30,7 @@ class CourseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Courses
 
-    id = factory.Sequence(lambda n: int(n))
+    id = factory.Sequence(lambda _: rando())
     name = factory.Sequence(lambda o: "course Number %s" % o)
     owner = factory.SubFactory(UserFactory)
 
@@ -41,7 +46,7 @@ class QuizFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Quiz
 
-    id = factory.LazyAttribute(lambda _: update("gw"))
+    id = factory.LazyAttribute(lambda _: rando())
     title = factory.Sequence(lambda n: "Quiz %s" % n)
     owner = factory.SelfAttribute("course.owner")
     course = factory.SubFactory(CourseFactory)
@@ -64,7 +69,7 @@ class QuestionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Question
 
-    id = factory.LazyAttribute(lambda _: update("gw"))
+    id = factory.LazyAttribute(lambda _: rando())
     point = factory.fuzzy.FuzzyInteger(1, 50)
     quiz = factory.SubFactory(QuizFactory)
     deleted = 0
@@ -77,7 +82,7 @@ class QuestionFactory(factory.django.DjangoModelFactory):
 class BaseQuestionFactory(factory.django.DjangoModelFactory):
     # deleted = 0  # fixed Value
     title = factory.Sequence(lambda n: "Question %s" % (n))
-    image = "/image/1.png"  # fixed value
+    image = "\\Users\\fady\\Desktop\\python projects\\quiz_gameification\\projects\\quiz_gameification\\1.png"  # fixed value
     owner = factory.SubFactory(UserFactory)
 
     class Meta:
@@ -121,7 +126,7 @@ class AnsFactory(factory.django.DjangoModelFactory):
         model = Answer
         abstract = True
 
-    id = factory.LazyAttribute(lambda _: update("gw"))
+    id = factory.LazyAttribute(lambda _: rando())
     point = factory.LazyAttribute(lambda _: random.randint(0, 10))
     user = factory.SubFactory(UserFactory)
     user_answer = factory.fuzzy.FuzzyInteger(1, 4)

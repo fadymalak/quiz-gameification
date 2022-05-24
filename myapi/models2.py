@@ -8,7 +8,7 @@ from .models import *
 class BaseItem(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     title = models.TextField(blank=False)
-    image = models.ImageField(default="")
+    image = models.URLField(null=True)
     owner = models.ForeignKey(
         "User", related_name="%(class)ss", on_delete=models.CASCADE
     )
@@ -51,3 +51,5 @@ class YNQ(BaseItem):
 
 class GQ(BaseItem):
     correct_answer = models.TextField(blank=False)
+
+

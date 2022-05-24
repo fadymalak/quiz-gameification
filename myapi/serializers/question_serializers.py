@@ -6,8 +6,7 @@ import typing
 import serpyco
 
 
-class UserQuestionSerializer(serializers.Serializer):
-    pass
+
 
 
 class BaseItemSerializer(serializers.Serializer):
@@ -156,7 +155,6 @@ class QuestionSerializer(serializers.ModelSerializer):
             item = instance.item
         point = validated_data.get("point", instance.point)
         quiz = validated_data.get("quiz", instance.quiz)
-        # validated_data.pop("item")
         for k, v in validated_data.items():
             setattr(instance, k, v)
         instance.item = item

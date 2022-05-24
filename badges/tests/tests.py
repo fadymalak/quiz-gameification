@@ -24,7 +24,6 @@ def test_create_rule(API):
 
 
 @pytest.mark.django_db
-@pytest.mark.curr
 def test_create_achievement(API):
     user = UserFactory.create(is_staff=1)
     print(user.id)

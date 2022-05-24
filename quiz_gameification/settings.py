@@ -156,6 +156,5 @@ STATIC_ROOT = os.path.join(PROJECT_ROOT, "static")
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 HASHID_FIELD_SALT = "67jsdg8sdug89sdfi3fdasdf"
-# DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-DEFAULT_AUTO_FIELD = "hashid_field.BigHashidAutoField"
-# DEFAULT_AUTO_FIELD = "django.db.models.UUIDField"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# DEFAULT_AUTO_FIELD = "hashid_field.BigHashidAutoField"
