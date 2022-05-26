@@ -1,5 +1,3 @@
-from numpy import isin
-from rest_framework.permissions import BasePermission, SAFE_METHODS
 from myapi.models import Quiz, User, Courses
 from myapi.permissions.main import Permission
 from django.urls import resolve
@@ -8,18 +6,16 @@ from myapi.serializers.quiz_serializers import Question
 
 def _check_owner(model,instance_id : int ,user_id : int) -> bool:
     m = model.objects.get(id=instance_id)
-    print(m.owner.id)
-    print(user_id)
     return user_id == m.owner.id
 
 def _check_object_owner(obj,user):
     return obj.owner == user
 
 def _check_enrolled(user:User,instance_id:int) -> bool :
+    
     query = user.courses.filter(id = instance_id)
     print("#instance id ",instance_id)
 
-    print(query.count())
     exist = query.exists()
     return exist
 
@@ -46,13 +42,12 @@ class IsStudentEnroll(Permission):
             id = obj.course.id
         elif isinstance(obj,Question):
             id = obj.quiz.course
-        print(id)
         return _check_enrolled(request.user,id)
 
 
 class IsCourseOwner2(Permission):
     def check_permission(self, request, action, obj):
-        return _check_object_owner(obj,request.user.id)
+        return _check_object_owner(obj,request.user)
 
 class IsQuizOwner2(Permission):
     def check_permission(self, request, action, obj):
@@ -75,6 +70,15 @@ class IsAnswerOwner(Permission):
     def check_permission(self, request, action=None, obj=None):
         return obj.user == request.user
 
+class IsSameUser(Permission):
+    def check_permission(self, request, action=None, obj=None):
+        return request.user == obj
+
+class AllowAny(Permission):
+    def check_permission(self, request, action=None, obj=None):
+        print(request.user.is_anonymous)
+        if request.user.is_anonymous :
+            return True
 class CoursePermission:
     list_course = IsRegistered()
     view_course = IsStudentEnroll() | IsCourseOwner2() |  IsSuperUser()
@@ -104,3 +108,12 @@ class QuestionPermission:
     edit_question = IsCourseOwner2() | IsQuizOwner2() | IsSuperUser()
     delete_question = IsCourseOwner2() | IsQuizOwner2() | IsSuperUser()
     approval_qeustion =  IsCourseOwner2() | IsSuperUser()
+
+
+class UserPermission:
+    list_user = IsRegistered() | IsSuperUser()
+    view_user = IsRegistered() |  IsSuperUser()
+    create_user = AllowAny()
+    edit_user = IsSameUser() |  IsSuperUser()
+    delete_user = IsSameUser() | IsSuperUser()
+    # approval_user =  IsCourseOwner2() | IsSuperUser()

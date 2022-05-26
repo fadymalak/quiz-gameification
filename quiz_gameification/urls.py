@@ -40,7 +40,7 @@ schema_view = get_schema_view(
 )
 
 router = DefaultRouter()
-router.register(r"users", UserViewSet, basename="user")
+# router.register(r"users", UserViewSet, basename="user")
 # router.register(r"quiz", QuizViewSet, basename="quiz")
 
 router.register(r"course", CourseViewSet, basename="course")
@@ -49,9 +49,11 @@ achievement = routers.NestedSimpleRouter(router,r'achievement',lookup='achieveme
 achievement.register(r'rules',rules.RulesViewSet,basename='achievement-level-rules')
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("course/<int:course_id>/quiz/",QuizViewSet.as_view({'get':'list','post':'post'}),name='quiz'),
-    path("course/<int:course_id>/quiz/<int:quiz_id>/",QuizViewSet.as_view({'get':'get','patch':'patch','delete':'delete'}),name='quiz-detials'),
-    re_path(r"^course/(?P<course_id>[0-9]+)/quiz/(?P<quiz_id>[0-9]+)/answer/(?P<answer_id>[0-9\/]*)",AnswerViewset.as_view({"post":"post","get":"get","get":"list"}),name='quiz-detials'),
+    # path("course/<int:course_id>/quiz/",QuizViewSet.as_view({'get':'list','post':'post'}),name='quiz'),
+    re_path(r"^course/(?P<course_id>[0-9]+)/quiz/(?P<pk>[0-9]*)[\/]*$",QuizViewSet.as_view({"post":"post","get":"get","get":"list"}),name='quiz-detials'),
+    path("user/",UserViewSet.as_view({"post":"post"}),name='quiz-detials'),
+    path("user/<int:pk>/",UserViewSet.as_view({'get':'get','patch':'patch','delete':'delete'}),name='quiz-detials'),
+    re_path(r"^course/(?P<course_id>[0-9]+)/quiz/(?P<quiz_id>[0-9]+)/answer/(?P<pk>[0-9]*)[\/]*$",AnswerViewset.as_view({"post":"post","get":"get","get":"list"}),name='quiz-detials'),
     path("auth/token/", jwt_views.TokenObtainPairView.as_view(), name="token_pair"),
     path(
         "auth/token/refresh/",

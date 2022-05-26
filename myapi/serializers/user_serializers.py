@@ -17,6 +17,7 @@ class User(Username,CreatedAt):
     email : str
     first_name : str
     last_name : str
+    bio :str
     private : bool
 
 UsernameSerial = Serializer(Username)

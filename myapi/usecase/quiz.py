@@ -92,11 +92,15 @@ def answers_create(request):
     answers = Answer.objects.bulk_create(answers_list)
     return answers
 
-def answer_delete(answer:Answer,user:User):
-    '''remove answer and remove user from quiz submittion'''
+def answers_delete(answer:Answer,user:User):
+    '''remove all quiz answer and remove user from quiz submittion'''
     quiz = answer.question.quiz
     user.quizs.remove(quiz)
-    answer.delete()
+    answers = Answer.objects.filter(question__quiz__id=quiz.id)
+    answer = answers.delete()
+    print(answer)
+    return answer
+
 
 def question_create(*,type:str,):
     pass

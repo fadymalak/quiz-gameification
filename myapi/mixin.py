@@ -2,18 +2,14 @@ from django.http import Http404
 from rest_framework.exceptions import PermissionDenied,AuthenticationFailed
 from django.urls import resolve
 class PermissionMixin:
-    # def check_permission(self,request,action=None,obj=None):
-        # vaild = self.permission.check_permission(request,action,obj)
-        # print(vaild)
-        # if not vaild : 
-            # raise PermissionDenied
-        # return 
     def check_permission(self,permission,request=None,action=None,obj=None):
-        print(request.user.is_authenticated)
-        if not request.user.is_authenticated:
-            raise PermissionDenied
+        # if not request.user.is_authenticated:
+            # raise PermissionDenied
         permcls = getattr(self.permission,permission)
-        vaild = permcls.check_permission(request,action,obj)
+        try:
+            vaild = permcls.check_permission(request,action,obj)
+        except Exception as e :
+            raise PermissionDenied("Forbidden , please login")
         if not vaild :
             raise PermissionDenied
 
@@ -47,8 +43,9 @@ class CustomDispatchMixin:
             # Get the appropriate handler method
             if request.method.lower() in self.http_method_names:
                 if request.method.lower() == "get":
-                    
-                    if len(self.kwargs.get("answer_id")) != 0:
+                    # only of answer route !
+                    obj = self.kwargs.get("pk")
+                    if obj is not None and obj != "":
                         handler = getattr(self, "get",
                                   self.http_method_not_allowed)
                     else:
@@ -61,6 +58,7 @@ class CustomDispatchMixin:
                                   self.http_method_not_allowed)
             else:
                 handler = self.http_method_not_allowed
+            
             response = handler(request, *args, **kwargs)
 
         except Exception as exc:

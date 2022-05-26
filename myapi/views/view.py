@@ -4,7 +4,7 @@ from rest_framework.generics import ListAPIView
 from django.views.generic.detail import SingleObjectMixin
 from myapi.mixin import PermissionMixin
 from myapi.services.service import Service
-from myapi.permissions.permissions import BasePermission
+from myapi.permissions.permissions import Permission
 from rest_framework.renderers import JSONRenderer
 from django.db.models import Model
 from abc import ABC , abstractmethod
@@ -29,7 +29,7 @@ class AbsViewset(ABC):
 
 class CustomViewset(PermissionMixin,SingleObjectMixin,ListAPIView,ViewSet,AbsViewset):
     service : Service = None
-    permission : BasePermission = None
+    permission : Permission = None
     renderer_classes : List = [JSONRenderer,]
     model : Model  = None
     pk_url_kwarg : str = None

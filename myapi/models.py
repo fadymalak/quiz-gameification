@@ -22,7 +22,7 @@ class User(AbstractUser):
     first_name = models.CharField(
         max_length=25, validators=[MinLengthValidator(limit_value=3)]
     )
-    bio = models.CharField(max_length=50)
+    bio = models.CharField(max_length=50,null=True)
     picture = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     courses = models.ManyToManyField("Courses", related_name="users")

@@ -12,7 +12,7 @@ from rest_framework import status
 
 @pytest.mark.test
 @pytest.mark.django_db
-#@pytest.mark.service
+@pytest.mark.service
 @pytest.mark.parametrize(
     "teacher,own,result",
     [(True, True, 201), (False, False, 403), (False, True, 201), (True, False, 403)],
@@ -43,7 +43,7 @@ def test_acceptance_CREATE_quiz_endpoint(API, teacher, own, result):
 
 @pytest.mark.test
 @pytest.mark.django_db
-#@pytest.mark.service
+@pytest.mark.service
 @pytest.mark.parametrize(
     "teacher,own,result",
     [(True, True, 204), (False, False, 403), (False, True, 204), (True, False, 403)],
@@ -67,6 +67,7 @@ def test_acceptance_DELETE_quiz_endpoint(API, teacher, own, result):
     before = Quiz.objects.filter(id=quiz.id).count()
     data = {"course": c.id}
     request = API.delete(f"/course/{c.id}/quiz/{quiz.id}/")
+    print(request.data)
     after_result = Quiz.objects.filter(id=quiz.id).count()
     if result != 204:
         after = 1
@@ -80,7 +81,7 @@ def test_acceptance_DELETE_quiz_endpoint(API, teacher, own, result):
 
 @pytest.mark.test
 @pytest.mark.django_db
-#@pytest.mark.service
+@pytest.mark.service
 def test_acceptance_DELETE_quiz_endpoint_student(API):
     u = UserFactory.create()
 
@@ -102,7 +103,7 @@ def test_acceptance_DELETE_quiz_endpoint_student(API):
 
 @pytest.mark.test
 @pytest.mark.django_db
-#@pytest.mark.service
+@pytest.mark.service
 @pytest.mark.parametrize(
     "teacher,own,result",
     [(True, True, 200), (False, False, 403)],
@@ -215,7 +216,7 @@ def test_retreive_anonymous_quiz_endpoint(API):
 
 @pytest.mark.test
 @pytest.mark.django_db
-#@pytest.mark.service
+@pytest.mark.service
 @pytest.mark.parametrize(
     "student,own,result",
     [(True, True, 200), (False, False, 403), (False, True, 200)],
@@ -251,6 +252,8 @@ def test_list_quiz_endpoint(API, student, own, result):
     
 
 @pytest.mark.django_db
+@pytest.mark.answer
+@pytest.mark.service
 @pytest.mark.curr
 def test_submit_answer_quiz_endpoint(API):
     user = UserFactory.create()
@@ -267,7 +270,8 @@ def test_submit_answer_quiz_endpoint(API):
 
 
 @pytest.mark.django_db
-@pytest.mark.curr
+@pytest.mark.service
+@pytest.mark.answer
 def test_get_answer_quiz_endpoint(API):
     user = UserFactory.create()
     mcq = MCQFactory.create()
@@ -278,7 +282,7 @@ def test_get_answer_quiz_endpoint(API):
     data=[{'user_answer':mcq.correct_answer,'id':int(question.id)},]
     request = API.post(f"/course/{course.id}/quiz/{question.quiz.id}/answer/",data=data,format='json')
     assert 201 == request.status_code
-    request2 = API.get(f"/course/{course.id}/quiz/{question.quiz.id}/answer/{request.data[0]['id']}")
+    request2 = API.get(f"/course/{course.id}/quiz/{question.quiz.id}/answer/{request.data[0]['id']}/")
     request3 = API.get(f"/course/{course.id}/quiz/{question.quiz.id}/answer/")
 
     assert request2.status_code == 200
@@ -287,26 +291,36 @@ def test_get_answer_quiz_endpoint(API):
 
 
 @pytest.mark.django_db
-@pytest.mark.curr
+@pytest.mark.answer
+@pytest.mark.service
 def test_delete_answer_quiz_endpoint(API):
     user = UserFactory.create()
     mcq = MCQFactory.create()
+    mcq2 = MCQFactory.create()
     question = QuestionFactory.create(item=mcq)
+    question2 = QuestionFactory.create(item=mcq2,quiz = question.quiz)
     course = Courses.objects.first()
     course_owner = course.owner
     API.force_authenticate(user=user)
     user.courses.add(course)
     data=[{'user_answer':mcq.correct_answer,'id':int(question.id)},]
     request = API.post(f"/course/{course.id}/quiz/{question.quiz.id}/answer/",data=data,format='json')
+    data2=[{'user_answer':mcq.correct_answer,'id':int(question2.id)},]
+    req2 = API.post(f"/course/{course.id}/quiz/{question.quiz.id}/answer/",data=data2,format='json')
     assert 201 == request.status_code
-    request2 = API.get(f"/course/{course.id}/quiz/{question.quiz.id}/answer/{request.data[0]['id']}")
-    request4 = API.delete(f"/course/{course.id}/quiz/{question.quiz.id}/answer/{request.data[0]['id']}")
+    request2 = API.get(f"/course/{course.id}/quiz/{question.quiz.id}/answer/{request.data[0]['id']}/")
+    request4 = API.delete(f"/course/{course.id}/quiz/{question.quiz.id}/answer/{request.data[0]['id']}/")
     strange = UserFactory.create()
     API.force_authenticate(user=strange)
-    request6 = API.delete(f"/course/{course.id}/quiz/{question.quiz.id}/answer/{request.data[0]['id']}")
+    request6 = API.delete(f"/course/{course.id}/quiz/{question.quiz.id}/answer/{request.data[0]['id']}/")
     API.force_authenticate(user=course_owner)
-    request5 = API.delete(f"/course/{course.id}/quiz/{question.quiz.id}/answer/{request.data[0]['id']}")
-
+    print(Answer.objects.all())
+    request5 = API.delete(f"/course/{course.id}/quiz/{question.quiz.id}/answer/{request.data[0]['id']}/")
+    print("# delted item is ",request5.data)
+    print(User.objects.get(id=user.id))
+    print(Courses.objects.all())
+    print(Quiz.objects.all())
+    print(Answer.objects.count())
     assert request6.status_code == 403
     assert request4.status_code == 403
     assert request5.status_code == 204

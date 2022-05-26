@@ -27,7 +27,7 @@ from ..serializers.quiz_serializers import (
 )
 from serpyco import Serializer
 from myapi.usecase.quiz import answer_list, quiz_create, quiz_get,\
- quiz_list, quiz_update,quiz_delete,answers_create
+ quiz_list, quiz_update,quiz_delete,answers_create,answers_delete
 from ..perm import *
 from django.views.generic.detail import SingleObjectMixin
 from rest_framework.decorators import action
@@ -42,7 +42,7 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
 
-class QuizViewSet(OnlyUserMixin,PermissionMixin,SingleObjectMixin,ViewSet):
+class QuizViewSet(CustomDispatchMixin,OnlyUserMixin,PermissionMixin,SingleObjectMixin,ViewSet):
     """
     Viewset to ``list/update/delete`` quiz
         ``retieve`` quiz Question
@@ -52,13 +52,13 @@ class QuizViewSet(OnlyUserMixin,PermissionMixin,SingleObjectMixin,ViewSet):
     permission = QuizPermission
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
     model = Quiz
-    pk_url_kwarg = "quiz_id"
-
+    pk_url_kwarg = "pk"
 
     def post(self, request, *args, **kwargs):
         user = request.user
         data = request.data
-        self.check_permission("create_quiz",request)
+        course = CourseService.get_by_id_o(self.kwargs['course_id'])
+        self.check_permission("create_quiz",request,obj=course)
         quiz = quiz_create(**data,owner=user)
         return Response(data=QuizSerial.dump(quiz),status=status.HTTP_201_CREATED)
 
@@ -68,7 +68,7 @@ class QuizViewSet(OnlyUserMixin,PermissionMixin,SingleObjectMixin,ViewSet):
         and add it To User.quizs to stop from retrieve it again
         """
         user = request.user
-        quiz_id = kwargs['quiz_id']
+        quiz_id = kwargs[self.pk_url_kwarg]
         obj = quiz_get(quiz_id,user)
         self.check_permission("view_quiz",request,obj=obj)
         return Response(
@@ -79,7 +79,8 @@ class QuizViewSet(OnlyUserMixin,PermissionMixin,SingleObjectMixin,ViewSet):
     def list(self, request, *args, **kwargs):
         ''' List Quiz by Course id'''
         course_id = kwargs.get("course_id",None)
-        self.check_permission("list_quiz",request)
+        course= CourseService.get_by_id_o(course_id)
+        self.check_permission("list_quiz",request,obj=course)
         if course_id is not None:
             data = quiz_list(course_id)
             return Response(QuizSerial.dump(data,many=True),status=status.HTTP_200_OK)
@@ -95,39 +96,24 @@ class QuizViewSet(OnlyUserMixin,PermissionMixin,SingleObjectMixin,ViewSet):
         update = quiz_update(data,obj)
         return Response(QuizSerial.dump(update),status=status.HTTP_200_OK)
 
-    def delete(self,request,course_id,quiz_id,*args,**kwargs):
-        self.check_permission("delete_quiz",request)
+    def delete(self,request,*args,**kwargs):
+        quiz_id = self.kwargs[self.pk_url_kwarg]
+        quiz = QuizService.get_by_id(quiz_id)
+        self.check_permission("delete_quiz",request,obj=quiz)
         quiz = quiz_delete(quiz_id)
         if quiz:
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    @transaction.atomic
-    @action(
-        methods=["POST",],
-        detail=True,
-        url_name="submit_asnwer",
-        url_path="submit-answer",
-        permission = AnswerPermission,
-    )
-    def submit_answer(self, request, *args,**kwargs):
-        """
-        When User Submit New Answer
-        Default user_answer:0 (Wrong)
-        """
-        answers = answers_create(request)
-        return Response(data=AnswerSerial.dump(answers,many=True),status=status.HTTP_201_CREATED)
-
-
 class AnswerViewset(CustomDispatchMixin,CustomViewset):
     service = AnswerService
-    pk_url_kwarg: str = "answer_id"
+    pk_url_kwarg: str = "pk"
     model: Model = Answer
     permission: BasePermission = AnswerPermission
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
     def get(self, request, *args, **kwargs):
-        answer = AnswerService.get_by_id(self.kwargs['answer_id'])
+        answer = AnswerService.get_by_id(self.kwargs[self.pk_url_kwarg])
 
         self.check_permission("view_answer",request,obj=answer)
         return Response(data=AnswerSerial.dump(answer),status=200)
@@ -138,7 +124,8 @@ class AnswerViewset(CustomDispatchMixin,CustomViewset):
         answers = answer_list(request.user,quiz)
         answers = [answer for answer in answers]
         return Response(data=AnswerSerial.dump(answers,many=True),status=200)
-
+        
+    # @transaction.atomic
     def post(self, request, *args, **kwargs):
         """
         When User Submit New Answer
@@ -157,6 +144,9 @@ class AnswerViewset(CustomDispatchMixin,CustomViewset):
     
     def delete(self, request, *args, **kwargs):
         course_id = self.kwargs['course_id']
+        answer_id = self.kwargs[self.pk_url_kwarg]
         course = CourseService.get_by_id_o(course_id)
         self.check_permission("delete_answer",request,obj=course)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        answer = AnswerService.get_by_id(answer_id)
+        answers = answers_delete(answer,request.user)
+        return Response(data=answers,status=status.HTTP_204_NO_CONTENT)
