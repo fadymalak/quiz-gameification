@@ -11,7 +11,7 @@ from myapi.mixin import ObjectMixin,CustomDispatchMixin
 from myapi.services.user import UserService
 from myapi.permissions.permissions import UserPermission
 from rest_framework.exceptions import MethodNotAllowed
-from myapi.usecase.user import user_update , create_user
+from myapi.usecase.user import user_update , user_create, user_list
 from rest_framework.response import Response
 from rest_framework import status
 class UserViewSet(CustomDispatchMixin,CustomViewset):
@@ -26,10 +26,9 @@ class UserViewSet(CustomDispatchMixin,CustomViewset):
         return Response(UserSerial.dump(user),status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
-        query= self.request.query_params
+        query= request.query_params
         self.check_permission("list_user",request)
-        users  = UserService.get_users_by_name(query['name'])
-        users = [user for user in users]
+        users = user_list(query)
         return Response(UserSerial.dump(users,many=True),status=status.HTTP_200_OK)
 
     def patch(self, request, *args, **kwargs):
@@ -42,7 +41,7 @@ class UserViewSet(CustomDispatchMixin,CustomViewset):
     def post(self, request, *args, **kwargs):
         data = request.data
         self.check_permission("create_user",request)
-        user = create_user(**data)
+        user = user_create(**data)
         return Response(data=UserSerial.dump(user),status=status.HTTP_201_CREATED)
     
     def put(self, request, *args, **kwargs):

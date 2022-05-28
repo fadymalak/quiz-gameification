@@ -1,6 +1,10 @@
 import pytest
 from myapi.tests.factories import *
+
+
 @pytest.mark.django_db
+@pytest.mark.course
+#@pytest.mark.service
 @pytest.mark.parametrize("authenicated",[True,False])
 def test_courses_view_list(API,authenicated):
     user = UserFactory.create()
@@ -11,13 +15,15 @@ def test_courses_view_list(API,authenicated):
         pass
 
     course = CourseFactory.create(owner=user)
-    request = API.get(f"/course/?search={user.first_name}")
+    request = API.get(f"/course/?teacher={user.first_name}")
     status = request.status_code
     print(request.data)
-    assert status == 200 if authenicated else status == 401
+    assert status == 200 if authenicated else status == 403
     
 
 @pytest.mark.django_db
+@pytest.mark.course
+#@pytest.mark.service
 @pytest.mark.parametrize("owner,enrolled",
     [(True,False),(True,True),(False,True),(False,False)]
 )
@@ -43,7 +49,9 @@ def test_courses_view_reterive(API,owner,enrolled):
     print(user.courses.all())
     print(status)
     assert status == 200 if owner or enrolled else status == 403
-
+    
+@pytest.mark.course
+#@pytest.mark.service
 @pytest.mark.django_db
 def test_reterive_teacher_enrroled(API):
     """ teacher who enrolled in another course """
@@ -55,19 +63,36 @@ def test_reterive_teacher_enrroled(API):
     request = API.get(f"/course/{course.id}/")
     assert request.status_code == 200
 
+@pytest.mark.course
+#@pytest.mark.service
 @pytest.mark.django_db
 def test_courses_view_create(API):
     user = UserFactory.create(is_staff=1)
     data = {"name":"hello world"}
     API.force_authenticate(user=user)
-    request = API.post("/course/",data=data)
-    result = request.json()
+    request = API.post("/course/",data=data,format='json')
+    result = request.data
     assert request.status_code == 201
     assert result["name"] == data["name"]
-    assert result["owner"] == user.id
+    assert result["owner"]['id'] == user.id
     
 
 
+
+@pytest.mark.course
+#@pytest.mark.service
+@pytest.mark.django_db
+def test_courses_view_invalid_create(API):
+    user = UserFactory.create(is_staff=1)
+    data = {"hello":123,"name":"hello world"}
+    API.force_authenticate(user=user)
+    request = API.post("/course/",data=data,format="json")
+    result = request.data
+    assert request.status_code == 400
+    
+
+@pytest.mark.course
+#@pytest.mark.service
 @pytest.mark.django_db
 @pytest.mark.parametrize("teacher,student,owner",[(1,0,0),(1,0,1),(0,1,0)])
 def test_courses_view_delete(API,teacher,student,owner):
@@ -81,6 +106,7 @@ def test_courses_view_delete(API,teacher,student,owner):
             user = UserFactory.create(is_staff=1)
             course = CourseFactory.create(owner=user)
             res = auth(user)
+            print(res.data)
             assert res.status_code == 204
         else:
             user = UserFactory.create(is_staff=1)
@@ -94,7 +120,8 @@ def test_courses_view_delete(API,teacher,student,owner):
         assert res.status_code == 403
 
              
-
+@pytest.mark.course
+#@pytest.mark.service
 @pytest.mark.django_db
 @pytest.mark.parametrize("teacher,student,owner",[(1,0,0),(1,0,1),(0,1,0)])
 def test_courses_view_update(API,teacher,student,owner):

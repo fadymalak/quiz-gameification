@@ -55,10 +55,11 @@ class QuizService(Service):
 
 
 
-
+def _filter_by_quiz_id(quiz_id):
+    return Question.objects.filter(quiz__id=quiz_id)
 
 class QuestionService(Service):
-    
+
     def get_by_id(id:int ) -> Question:
         question  = Question.objects.get(id=id)
         return question
@@ -68,22 +69,32 @@ class QuestionService(Service):
                     .select_related("content_type").filter(id__in =ids).all()
         return questions
 
-    def get_by_quiz(quiz_id:int) -> List[int]:
-        questions = Question.objects.filter(quiz__id=quiz_id)\
-            .values_list("id",flat=True).all()
+    def get_ids_by_quiz_id(quiz_id:int) -> List[int]:
+        questions = _filter_by_quiz_id(quiz_id)\
+                        .values_list("id",flat=True).all()
         return list(questions)
-    def create(**kwargs) -> Question:
+
+    def get_by_quiz_id(quiz_id:int) -> List[Question]:
+        queryset = _filter_by_quiz_id(quiz_id)\
+                                .prefetch_related("item")\
+                                    .select_related("content_type").all()
+        questions = [question for question in queryset]
+        return questions
+
+    def create(user,**kwargs) -> Question:
         item_data = kwargs.pop("item")
-        item_type = item.pop("type").lower()
-        item = ""
+        item_type = kwargs.pop("content_type")['model'].lower()
+        quiz_id = kwargs.pop("quiz")['id']
+        quiz = QuizService.get_by_id(quiz_id)
+        item = None
         for q_type in BaseItem.__subclasses__():
             #find content-type Question type and creat it
             if item_type in q_type.__name__.lower():
                 item = q_type(**item_data)
+                item.owner = user
                 item.save() 
-
         #create_question
-        question = Question(item=item,quiz=kwargs['quiz'],point=kwargs['point'])
+        question = Question(item=item,quiz=quiz,point=kwargs['point'])
         question.save()
         return question
 

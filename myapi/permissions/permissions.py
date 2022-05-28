@@ -50,7 +50,8 @@ class IsCourseOwner2(Permission):
         return _check_object_owner(obj,request.user)
 
 class IsQuizOwner2(Permission):
-    def check_permission(self, request, action, obj):
+    def check_permission(self, request, action, obj = None):
+
         id = resolve(request.path_info).kwargs['quiz_id']
         return _check_owner(Quiz,id,request.user.id)
 
@@ -81,7 +82,7 @@ class AllowAny(Permission):
             return True
 class CoursePermission:
     list_course = IsRegistered()
-    view_course = IsStudentEnroll() | IsCourseOwner2() |  IsSuperUser()
+    view_course = IsStudentEnroll() | IsCourseOwner2()  |   IsSuperUser() # | IsCourseStaff()
     create_course = IsTeacher() | IsSuperUser()
     edit_course = IsCourseOwner2() | IsSuperUser() 
     delete_course = IsCourseOwner2() | IsSuperUser()
@@ -102,8 +103,8 @@ class AnswerPermission:
     delete_answer = IsCourseOwner2() | IsQuizOwner2() | IsSuperUser()
 
 class QuestionPermission:
-    list_question = IsStudentEnroll() | IsCourseOwner2() | IsQuizOwner2() | IsSuperUser()
-    view_question = IsStudentEnroll() | IsCourseOwner2() | IsQuizOwner2() | IsSuperUser()
+    list_question = IsCourseOwner2() | IsQuizOwner2() | IsSuperUser()
+    view_question =  IsCourseOwner2() | IsQuizOwner2() | IsSuperUser()
     create_question = IsCourseOwner2() | IsQuizOwner2() | IsSuperUser()
     edit_question = IsCourseOwner2() | IsQuizOwner2() | IsSuperUser()
     delete_question = IsCourseOwner2() | IsQuizOwner2() | IsSuperUser()

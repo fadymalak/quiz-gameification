@@ -1,32 +1,47 @@
 
 from myapi.services.service import Service
 from myapi.models import Courses
-from myapi.serializers.course_serializers import CourseDetailSerializer ,CourseSerializers 
+# from myapi.serializers.course_serializers import CourseDetailSerializer ,CourseSerializers 
 from typing import Union
-
+from django.db.models import Q
+from django.db.models import QuerySet
 class CourseService(Service):
     
-    def get_by_id(id:int , detail: bool = False) -> Union[CourseDetailSerializer,CourseSerializers]:
+    def get_by_id(id:int , detail: bool = False) :
         course  = Courses.objects.get(id=id)
-        if detail:
-            return CourseDetailSerializer(course)
-        return  CourseSerializers(course)
-
+        return course
     def get_by_id_o(id:int) -> Courses :
         course = Courses.objects.get(id=id)
         return course
+        
+    def get_courses_by_name(name:str) -> QuerySet[Courses]:
+        if name is not None :
+            courses = Courses.objects.filter(name__contains=name).all()
+        else : 
+            courses = QuerySet(Courses)
+        return courses
+        
+    def get_courses_by_teacher(name:str)-> QuerySet[Courses]:
+        if name is not None :
+            courses = Courses.objects.filter(Q(owner__first_name__contains=name)|\
+                Q(owner__last_name__contains=name)|Q(owner__username__contains=name)).all()
+        else:
+            courses = QuerySet(Courses)
+        return courses
 
-    def create(**kwargs) -> CourseDetailSerializer:
-        course = Courses.objects.create(**kwargs)
-        return CourseDetailSerializer(course)
+    def create(owner,**kwargs) :
+        course = Courses.objects.create(owner=owner,**kwargs)
+        return course
 
-    def update(course:Courses ,**kwargs) -> CourseDetailSerializer:
+    def update(course:Courses ,**kwargs) :
         updated = 0
         for k,v in kwargs.items():
             if getattr(course,k) != v :
                setattr(course,k,v)
                updated= 1
         course.save()
-        return  CourseDetailSerializer(course)
+        return  course
             
-
+    def delete(course_id):
+        course = Courses.objects.get(id=course_id).delete()
+        return course

@@ -4,7 +4,7 @@ from myapi.tests.factories import UserFactory
 
 
 @pytest.mark.user
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.django_db
 def test_create_vaild_user(API):
     data = {
@@ -20,7 +20,7 @@ def test_create_vaild_user(API):
 
 
 @pytest.mark.user
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.django_db
 def test_create_invaild_user(API):
     data = {
@@ -37,7 +37,7 @@ def test_create_invaild_user(API):
 
 
 @pytest.mark.user
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.django_db
 def test_patch_vaild_user(API):
     user = UserFactory.create()
@@ -53,7 +53,7 @@ def test_patch_vaild_user(API):
 
 
 @pytest.mark.user
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.django_db
 def test_patch_zinvaild_user(API):
     user = UserFactory.create()
@@ -67,7 +67,7 @@ def test_patch_zinvaild_user(API):
     assert request.status_code == 400
 
 @pytest.mark.user
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.django_db
 def test_get_anonymous_user(API):
     user = UserFactory.create()
@@ -76,7 +76,7 @@ def test_get_anonymous_user(API):
     
 
 @pytest.mark.user
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.django_db
 def test_get_loggedin_user(API):
     user = UserFactory.create()

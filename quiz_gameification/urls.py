@@ -18,6 +18,7 @@ from django.urls import path, reverse, resolve, include , re_path
 from myapi.views.user_views import UserViewSet
 from myapi.views.quiz_views import   QuizViewSet , AnswerViewset
 from myapi.views.courses_views import CourseViewSet
+from myapi.views.question_views import QuestionViewset
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt import views as jwt_views
 from rest_framework_nested import routers
@@ -43,14 +44,16 @@ router = DefaultRouter()
 # router.register(r"users", UserViewSet, basename="user")
 # router.register(r"quiz", QuizViewSet, basename="quiz")
 
-router.register(r"course", CourseViewSet, basename="course")
+# router.register(r"course", CourseViewSet, basename="course")
 router.register(r"achievement",achievements.AchievementViewSet)
 achievement = routers.NestedSimpleRouter(router,r'achievement',lookup='achievement_level')
 achievement.register(r'rules',rules.RulesViewSet,basename='achievement-level-rules')
 urlpatterns = [
     path("admin/", admin.site.urls),
+    re_path(r"^course/(?P<pk>[0-9]*)[\/]*$",CourseViewSet.as_view({v:v for v in ["get","post","patch","delete"]}),name="course-view"),
     # path("course/<int:course_id>/quiz/",QuizViewSet.as_view({'get':'list','post':'post'}),name='quiz'),
     re_path(r"^course/(?P<course_id>[0-9]+)/quiz/(?P<pk>[0-9]*)[\/]*$",QuizViewSet.as_view({"post":"post","get":"get","get":"list"}),name='quiz-detials'),
+    re_path(r"^course/(?P<course_id>[0-9]+)/quiz/(?P<quiz_id>[0-9]+)/question/(?P<pk>[0-9]*)[\/]*$",QuestionViewset.as_view({"post":"post","get":"get","get":"list"}),name='quiz-detials'),
     path("user/",UserViewSet.as_view({"post":"post"}),name='quiz-detials'),
     path("user/<int:pk>/",UserViewSet.as_view({'get':'get','patch':'patch','delete':'delete'}),name='quiz-detials'),
     re_path(r"^course/(?P<course_id>[0-9]+)/quiz/(?P<quiz_id>[0-9]+)/answer/(?P<pk>[0-9]*)[\/]*$",AnswerViewset.as_view({"post":"post","get":"get","get":"list"}),name='quiz-detials'),

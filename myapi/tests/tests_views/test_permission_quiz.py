@@ -12,7 +12,7 @@ from rest_framework import status
 
 @pytest.mark.test
 @pytest.mark.django_db
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.parametrize(
     "teacher,own,result",
     [(True, True, 201), (False, False, 403), (False, True, 201), (True, False, 403)],
@@ -43,7 +43,7 @@ def test_acceptance_CREATE_quiz_endpoint(API, teacher, own, result):
 
 @pytest.mark.test
 @pytest.mark.django_db
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.parametrize(
     "teacher,own,result",
     [(True, True, 204), (False, False, 403), (False, True, 204), (True, False, 403)],
@@ -81,7 +81,7 @@ def test_acceptance_DELETE_quiz_endpoint(API, teacher, own, result):
 
 @pytest.mark.test
 @pytest.mark.django_db
-@pytest.mark.service
+#@pytest.mark.service
 def test_acceptance_DELETE_quiz_endpoint_student(API):
     u = UserFactory.create()
 
@@ -103,7 +103,7 @@ def test_acceptance_DELETE_quiz_endpoint_student(API):
 
 @pytest.mark.test
 @pytest.mark.django_db
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.parametrize(
     "teacher,own,result",
     [(True, True, 200), (False, False, 403)],
@@ -142,7 +142,7 @@ def test_update_quiz_endpoint(API, teacher, own, result):
 
 @pytest.mark.test
 @pytest.mark.django_db
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.parametrize(
     "teacher,own,result",
     [(True, True, 200), (False, False, 403), (False, True, 200), (True, False, 200)],
@@ -185,7 +185,7 @@ def test_retreive_quiz_endpoint(API, teacher, own, result):
 
 @pytest.mark.test
 @pytest.mark.django_db
-@pytest.mark.service
+#@pytest.mark.service
 
 def test_retreive_anonymous_quiz_endpoint(API):
     user = UserFactory.create()
@@ -216,7 +216,7 @@ def test_retreive_anonymous_quiz_endpoint(API):
 
 @pytest.mark.test
 @pytest.mark.django_db
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.parametrize(
     "student,own,result",
     [(True, True, 200), (False, False, 403), (False, True, 200)],
@@ -253,7 +253,7 @@ def test_list_quiz_endpoint(API, student, own, result):
 
 @pytest.mark.django_db
 @pytest.mark.answer
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.curr
 def test_submit_answer_quiz_endpoint(API):
     user = UserFactory.create()
@@ -270,7 +270,7 @@ def test_submit_answer_quiz_endpoint(API):
 
 
 @pytest.mark.django_db
-@pytest.mark.service
+#@pytest.mark.service
 @pytest.mark.answer
 def test_get_answer_quiz_endpoint(API):
     user = UserFactory.create()
@@ -292,7 +292,7 @@ def test_get_answer_quiz_endpoint(API):
 
 @pytest.mark.django_db
 @pytest.mark.answer
-@pytest.mark.service
+#@pytest.mark.service
 def test_delete_answer_quiz_endpoint(API):
     user = UserFactory.create()
     mcq = MCQFactory.create()

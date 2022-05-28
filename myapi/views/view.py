@@ -32,7 +32,7 @@ class CustomViewset(PermissionMixin,SingleObjectMixin,ListAPIView,ViewSet,AbsVie
     permission : Permission = None
     renderer_classes : List = [JSONRenderer,]
     model : Model  = None
-    pk_url_kwarg : str = None
+    pk_url_kwarg : str = "pk"
 
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)

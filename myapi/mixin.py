@@ -58,7 +58,7 @@ class CustomDispatchMixin:
                                   self.http_method_not_allowed)
             else:
                 handler = self.http_method_not_allowed
-            
+            print("handler")
             response = handler(request, *args, **kwargs)
 
         except Exception as exc:

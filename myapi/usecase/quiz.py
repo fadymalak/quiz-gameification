@@ -1,14 +1,16 @@
+from this import d
 from venv import create
 from django.http import Http404
 from rest_framework.exceptions import APIException
 from rest_framework import status
 from requests import delete
+from myapi.models2 import Question
 from myapi.services.quiz import AnswerService, QuestionService , QuizService
 from myapi.services.course import CourseService
 import datetime
 from typing import List, Tuple , Union 
 from myapi.models import Answer, Quiz , User
-from myapi.models2 import GQ
+from myapi.models2 import GQ ,MCQ,YNQ ,BaseItem
 class QuizOpenBeforeException(APIException):
     status_code = status.HTTP_403_FORBIDDEN
     default_detail = "Quiz Already Opened Before"
@@ -47,16 +49,14 @@ def answer_get(id):
     answer = AnswerService.get_by_id(id)
     return answer
 def answer_list(user:User,quiz:Quiz):
-    questions : List[int] = QuestionService.get_by_quiz(quiz.id)
+    questions : List[int] = QuestionService.get_ids_by_quiz_id(quiz.id)
     answers = AnswerService.filter_by_user_and_question(user,questions)
     return answers
 
 def _create_questions_list(request):
     questions = request.data
-    param = {q['id']:q['user_answer'] for q in questions}
+    param = {question['id']:question['user_answer'] for question in questions}
     ids = list(param.keys())
-    
-    answers = []
     questions = QuestionService.get_by_ids(ids)
     return questions
 
@@ -102,10 +102,18 @@ def answers_delete(answer:Answer,user:User):
     return answer
 
 
-def question_create(*,type:str,):
-    pass
+def question_create(user,data:dict):
+    question = QuestionService.create(user,**data)
+     
+    return question
 
-def question_update():
+def question_list(quiz_id:int) -> List[Question]:
+    queryset = QuestionService.get_by_quiz_id(quiz_id)
+    questions = [question  for question in queryset]
+    return questions
+
+def question_update(question,data):
+
     pass
 
 def question_delete():

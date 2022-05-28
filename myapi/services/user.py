@@ -5,8 +5,9 @@ from myapi.models import User
 from django.db.models import Subquery
 from django.db.models import Q
 from typing import List
+from django.db.models import QuerySet
 class UserService:
-    def get_users_by_name(name:str)-> List[User]:
+    def get_users_by_name(name:str)-> QuerySet[User]:
         users = User.objects.filter(Q(username__contains=name)|Q(last_name__contains=name)|\
             Q(first_name__contains=name)|Q(bio__contains=name)).all()
         return users

@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from serpyco.validator import ValidationError
 from rest_framework.decorators import (
     authentication_classes,
     permission_classes,
@@ -7,69 +7,62 @@ from rest_framework.decorators import (
 from rest_framework.viewsets import ModelViewSet
 from ..models import Courses, User
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
-from ..serializers.course_serializers import CourseDetailSerializer, CourseSerializers
+# from ..serializers.course_serializers import CourseDetailSerializer, CourseSerializers
 from django.db.models import Q, Value, F
 from django.db.models.functions import Concat
-from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from myapi.perm import CoursePermission , IsTeacher
 from rest_framework import status
+from myapi.views.view import CustomViewset
+from myapi.services.service import Service
+from myapi.services.course import CourseService
+from myapi.serializers.course_serializers import CourseSerial , CourseValidator
+from myapi.permissions.permissions import CoursePermission
+from myapi.usecase.course import course_create , course_delete ,course_list,course_update
+from myapi.mixin import CustomDispatchMixin
+from rest_framework.exceptions import ParseError
+class CourseViewSet(CustomDispatchMixin,CustomViewset):
+    service: Service
+    pk_url_kwarg: str = "pk"
+    permission = CoursePermission
+    model = Courses
 
+    def get(self, request, *args, **kwargs):
+        course = self.get_object()
+        self.check_permission("view_course",request,obj=course)
+        return Response(data=CourseSerial.dump(course),status=status.HTTP_200_OK)
 
-class CourseViewSet(ModelViewSet):
-    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
-    permission_classes = [
-        CoursePermission , IsAuthenticated,
-    ]
+    def list(self, request, *args, **kwargs):
+        query = request.query_params
+        self.check_permission("list_course",request)
+        courses = course_list(query)
+        return Response(data=CourseSerial.dump(courses,many=True),status=status.HTTP_200_OK)
 
-    def get_permissions(self):
-        if self.action == "create":
-            permission_classes = [IsTeacher, IsAuthenticated]
-            return [permission() for permission in permission_classes]
-        elif self.action == "list":
-            print("List")
-            permission_classes = [ IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        try:
+            CourseValidator.validate(data)
+        except ValidationError:
+            
+            raise ParseError(detail="invaild data")
+        self.check_permission("create_course",request)
+        course = course_create(user=request.user,**data)
+        return Response(data=CourseSerial.dump(course),status=status.HTTP_201_CREATED)
 
-            return [permission() for permission in permission_classes]
-        print("else")
-        return super().get_permissions()
+    def patch(self, request, *args, **kwargs):
+        data = request.data
+        course_id = self.kwargs[self.pk_url_kwarg]
+        course= self.get_object()
+        try:
+            CourseValidator.validate(data)
+        except ValidationError:
+            raise ParseError(detail="invalid data")
+        self.check_permission("edit_course",request,obj=course)
+        course = course_update(course_id,**data)
+        return Response(data=CourseSerial.dump(course),status=status.HTTP_200_OK)
 
-    def get_serializer_class(self):
-        if self.request.method == "GET":
-            # return Course Details
-            return CourseDetailSerializer
-        return CourseSerializers
-
-    def get_object(self):
-        course_id = self.kwargs[self.lookup_field]
-        return Courses.objects.get(id=course_id)
-
-    def get_queryset(self):
-        param = self.request.query_params
-        search = param.get("search", 1)
-
-        return Courses.objects.alias(
-            oname=Concat(F("owner__first_name"), Value(" "), F("owner__last_name"))
-        ).filter(
-            Q(oname__contains=search)
-            | Q(name__contains=search)
-            | Q(owner__username__contains=search)
-            # Q(id = search)
-        )[
-            :10
-        ]
-
-    def create(self, request):
-        """'
-        Create New Course
-        __Note: __owner__ param is set by default : request.user.id
-        """
-        data = request.data.copy()
-        # data = QueryDict(data)
-        user = request.user
-        data["owner"] = user.id
-        serializer = CourseSerializers(data=data)
-
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+    def delete(self, request, *args, **kwargs):
+        course_id = self.kwargs[self.pk_url_kwarg]
+        course = self.get_object()
+        self.check_permission("delete_course",request,obj=course)
+        course_delete(course=course)
+        return Response(status = status.HTTP_204_NO_CONTENT)
