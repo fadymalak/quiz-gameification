@@ -21,6 +21,6 @@ def user_list(query:str) -> List[Union[User,None]]:
 def _check_fields(**data) -> None:
     for i in data.keys():
         if i not in \
-                ["username",'password',
+                ["username",'password','email',
                 "last_name","first_name","bio","picture",'private']:
             raise ParseError(detail="Unsupported fields provided")

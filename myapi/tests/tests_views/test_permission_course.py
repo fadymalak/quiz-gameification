@@ -15,7 +15,7 @@ def test_courses_view_list(API,authenicated):
         pass
 
     course = CourseFactory.create(owner=user)
-    request = API.get(f"/course/?teacher={user.first_name}")
+    request = API.get(f"/course/?search={user.first_name}")
     status = request.status_code
     print(request.data)
     assert status == 200 if authenicated else status == 403

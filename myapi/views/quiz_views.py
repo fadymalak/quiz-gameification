@@ -42,7 +42,7 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
 
-class QuizViewSet(CustomDispatchMixin,OnlyUserMixin,PermissionMixin,SingleObjectMixin,ViewSet):
+class QuizViewSet(OnlyUserMixin,CustomDispatchMixin,CustomViewset):
     """
     Viewset to ``list/update/delete`` quiz
         ``retieve`` quiz Question
@@ -54,23 +54,24 @@ class QuizViewSet(CustomDispatchMixin,OnlyUserMixin,PermissionMixin,SingleObject
     model = Quiz
     pk_url_kwarg = "pk"
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         user = request.user
         data = request.data
-        course = CourseService.get_by_id_o(self.kwargs['course_id'])
+        course = CourseService.get_by_id_o(self.kwargs['course_pk'])
         self.check_permission("create_quiz",request,obj=course)
         quiz = quiz_create(**data,owner=user)
         return Response(data=QuizSerial.dump(quiz),status=status.HTTP_201_CREATED)
 
-    def get(self,request,*args,**kwargs):
+    def retrieve(self,request,*args,**kwargs):
         """
         Retrieve question from quiz to solve it (user click start quiz)
         and add it To User.quizs to stop from retrieve it again
         """
         user = request.user
         quiz_id = kwargs[self.pk_url_kwarg]
+        quiz = self.get_object()
+        self.check_permission("view_quiz",request,obj=quiz)
         obj = quiz_get(quiz_id,user)
-        self.check_permission("view_quiz",request,obj=obj)
         return Response(
                     QuizDetailSerial.dump(obj),
                         status=status.HTTP_200_OK
@@ -78,7 +79,7 @@ class QuizViewSet(CustomDispatchMixin,OnlyUserMixin,PermissionMixin,SingleObject
 
     def list(self, request, *args, **kwargs):
         ''' List Quiz by Course id'''
-        course_id = kwargs.get("course_id",None)
+        course_id = kwargs.get("course_pk",None)
         course= CourseService.get_by_id_o(course_id)
         self.check_permission("list_quiz",request,obj=course)
         if course_id is not None:
@@ -86,17 +87,17 @@ class QuizViewSet(CustomDispatchMixin,OnlyUserMixin,PermissionMixin,SingleObject
             return Response(QuizSerial.dump(data,many=True),status=status.HTTP_200_OK)
         raise Http404
 
-    def put(self,request,*args,**kwargs): 
+    def update(self,request,*args,**kwargs): 
         raise Http404
 
-    def patch(self,request,*args,**kwargs):
+    def partial_update(self,request,*args,**kwargs):
         obj = self.get_object()
         self.check_permission("edit_quiz",request,None,obj)
         data = request.data
         update = quiz_update(data,obj)
         return Response(QuizSerial.dump(update),status=status.HTTP_200_OK)
 
-    def delete(self,request,*args,**kwargs):
+    def destroy(self,request,*args,**kwargs):
         quiz_id = self.kwargs[self.pk_url_kwarg]
         quiz = QuizService.get_by_id(quiz_id)
         self.check_permission("delete_quiz",request,obj=quiz)
@@ -112,38 +113,38 @@ class AnswerViewset(CustomDispatchMixin,CustomViewset):
     permission: BasePermission = AnswerPermission
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
-    def get(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):
         answer = AnswerService.get_by_id(self.kwargs[self.pk_url_kwarg])
 
         self.check_permission("view_answer",request,obj=answer)
         return Response(data=AnswerSerial.dump(answer),status=200)
 
     def list(self, request, *args, **kwargs):
-        quiz = QuizService.get_by_id(self.kwargs['quiz_id'])
+        quiz = QuizService.get_by_id(self.kwargs['quiz_pk'])
         self.check_permission("list_answer",request,obj=quiz)
         answers = answer_list(request.user,quiz)
         answers = [answer for answer in answers]
         return Response(data=AnswerSerial.dump(answers,many=True),status=200)
         
     # @transaction.atomic
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         """
         When User Submit New Answer
         Default user_answer:0 (Wrong)
         """
-        quiz = QuizService.get_by_id(self.kwargs['quiz_id'])
+        quiz = QuizService.get_by_id(self.kwargs['quiz_pk'])
         self.check_permission("create_answer",request,obj=quiz)
         answers = answers_create(request)
         return Response(data=AnswerSerial.dump(answers,many=True),status=status.HTTP_201_CREATED)
 
-    def patch(self, request, *args, **kwargs):
+    def partial_update(self, request, *args, **kwargs):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def put(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
     
-    def delete(self, request, *args, **kwargs):
-        course_id = self.kwargs['course_id']
+    def destroy(self, request, *args, **kwargs):
+        course_id = self.kwargs['course_pk']
         answer_id = self.kwargs[self.pk_url_kwarg]
         course = CourseService.get_by_id_o(course_id)
         self.check_permission("delete_answer",request,obj=course)

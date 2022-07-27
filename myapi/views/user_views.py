@@ -20,7 +20,7 @@ class UserViewSet(CustomDispatchMixin,CustomViewset):
     pk_url_kwarg = "pk"
     permission = UserPermission
 
-    def get(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):
         user = self.get_object()
         self.check_permission("view_user",request)
         return Response(UserSerial.dump(user),status=status.HTTP_200_OK)
@@ -31,23 +31,23 @@ class UserViewSet(CustomDispatchMixin,CustomViewset):
         users = user_list(query)
         return Response(UserSerial.dump(users,many=True),status=status.HTTP_200_OK)
 
-    def patch(self, request, *args, **kwargs):
+    def partial_update(self, request, *args, **kwargs):
         data = request.data
         user = self.get_object()
         self.check_permission("edit_user",request,obj=user)
         user = user_update(user,**data)
         return Response(UserSerial.dump(user),status=status.HTTP_200_OK)
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         data = request.data
         self.check_permission("create_user",request)
         user = user_create(**data)
         return Response(data=UserSerial.dump(user),status=status.HTTP_201_CREATED)
     
-    def put(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
         raise MethodNotAllowed(detail="method not allowed")
     
-    def delete(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs):
         user = request.user
         self.check_permission("delete_user",request,obj=user)
         user.delete()

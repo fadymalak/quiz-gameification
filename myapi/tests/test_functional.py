@@ -19,7 +19,7 @@ def test_e2e_courses_get_queryset(API, SUPER_LOGIN):
     req = API.get("/course/?search=malak")
     data = req.json()[0]
     assert req.status_code == 200
-    assert data["owner"] == user.username
+    assert data["owner"]['username'] == user.username
     assert data["name"] == course.name
 
 
@@ -46,9 +46,10 @@ def test_functional_course_get_queryset(attr, API, SUPER_LOGIN):
     else:
         search = rgetattr(course, attr)
     req = API.get("/course/?search=%s" % (search))
-    data = req.json()
+    data = req.data
     assert len(data) == 1
-    assert data[0]["owner"] == course.owner.username
+    print(data)
+    assert data[0]["owner"]['username'] == course.owner.username
     assert data[0]["name"] == course.name
 
 
@@ -58,7 +59,7 @@ def test_functional_course_get_queryset(attr, API, SUPER_LOGIN):
 def test_functional_create_user():
     API = APIClient()
     req = API.post(
-        "/users/",
+        "/user/",format="json",
         data={
             "first_name": "fadyaa",
             "last_name": "malaka",
@@ -74,7 +75,7 @@ def test_functional_create_user():
 @pytest.mark.django_db
 def test_functional_Course_create(API, SUPER_LOGIN):
     rdata = {"name": "COURSE NUMER 2"}
-    req = API.post("/course/", data=rdata)
+    req = API.post("/course/",format="json", data=rdata)
     data = req.json()
     assert data["name"] == rdata["name"]
     assert req.status_code == 201

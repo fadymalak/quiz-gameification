@@ -32,34 +32,3 @@ class Validator(AbstractValidator):
 
 
 
-
-class NestValidator(AbstractValidator):
-    def __init__(self,schema_builder:SchemaBuilder) -> None:
-        super().__init__(schema_builder)
-
-    def validate(self, data: dict, nest:dict, many: bool = False) -> None:
-        prop =data.keys()
-        other = nest
-        valid_prop = self._schema['properties'].keys()
-        for i in prop :
-            if i not in other:
-                if i not in valid_prop:
-                    print("Error")
-                    raise ValidationError(msg="Invalid data")
-            else :
-                if i in valid_prop:
-                    print(" Check")
-                    for q in QuestionBaseValid.__subclasses__():
-                        print(q.__name__.lower().replace("valid",""))
-                        if data['type'].lower() in q.__name__.lower() :
-                            print(GQValid)
-                            schema = SchemaBuilder(GQValid)
-                            x = Validator(schema_builder=schema)
-                            x.validate(data=data[i])
-                else :
-                    print(" Check2")
-                    raise ValidationError(msg="Invalid nested data")
-        return True
-        return super().validate(data, many)
-    def validate_json(self, json_string: str, many: bool = False) -> None:
-        return super().validate_json(json_string, many)

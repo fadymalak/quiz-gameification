@@ -102,22 +102,18 @@ class MCQValid(QuestionBaseValid,Correct):
 @dataclass
 class QuestionValid:
     content_type :Union[ContentType,int]
-    deleted : int
     point : int
     item : Union[GQValid,YNQValid,MCQValid]
     quiz : ID
+    deleted : int = 0
 
     @pre_load
     def pre_loading(data:dict):
-        data['content_type'] = {"model":data['content_type']}
-        
-        data.setdefault("deleted",0)
-        # item = data['item'].setdefault("owner",None)
         return data
 
     @post_dump
     def post_dumpping(data):
-        data['content_type'] = data['content_type']['model'].upper()
+        # data['content_type']['model'] = data['content_type']['model'].upper()
         return data
         
     def dict(self):
@@ -128,36 +124,6 @@ class QuestionValid:
                 json[k] = v.__dict__
         return json
 
-class NestValidator(AbstractValidator):
-    def __init__(self,schema_builder:SchemaBuilder) -> None:
-        super().__init__(schema_builder)
-
-    def validate(self, data: dict, nest:dict, many: bool = False) -> None:
-        prop =data.keys()
-        other = nest
-        valid_prop = self._schema['properties'].keys()
-        for i in prop :
-            if i not in other:
-                if i not in valid_prop:
-                    print("Error")
-                    raise ValidationError(msg="Invalid data")
-            else :
-                if i in valid_prop:
-                    print(" Check")
-                    for q in QuestionBaseValid.__subclasses__():
-                        print(q.__name__.lower().replace("valid",""))
-                        if data['type'].lower() in q.__name__.lower() :
-                            print(GQValid)
-                            schema = SchemaBuilder(GQValid)
-                            x = Validator(schema_builder=schema)
-                            x.validate(data=data[i])
-                else :
-                    print(" Check2")
-                    raise ValidationError(msg="Invalid nested data")
-        return True
-        return super().validate(data, many)
-    def validate_json(self, json_string: str, many: bool = False) -> None:
-        return super().validate_json(json_string, many)
 _QuestionSchema = SchemaBuilder(QuestionValid)
 
 QuestionValidator = Validator(schema_builder=_QuestionSchema)

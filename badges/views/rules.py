@@ -13,7 +13,7 @@ from badges.views import achievements
 # from django.db.models import 
 
 class RulesViewSet(ModelViewSet):
-    permission_classes = [IsOwner,IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = RulesSerializer
 
     def get_permissions(self):
@@ -36,6 +36,7 @@ class RulesViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         user = request.user
         data = request.data
+        print(self.kwargs)
         data['achievement_level'] = self.kwargs['achievement_level_pk']
         serializer = RulesSerializer(data=data)
         serializer.is_valid(raise_exception=True)

@@ -11,6 +11,16 @@ def _check_owner(model,instance_id : int ,user_id : int) -> bool:
 def _check_object_owner(obj,user):
     return obj.owner == user
 
+def _get_course_object(obj):
+    course = None
+    if isinstance(obj,Question):
+        course = obj.quiz.course
+    elif isinstance(obj,Quiz):
+        course = obj.course
+    elif isinstance(obj,Courses):
+        course = obj
+    return course
+
 def _check_enrolled(user:User,instance_id:int) -> bool :
     
     query = user.courses.filter(id = instance_id)
@@ -33,7 +43,6 @@ owner = student_enrolled + ['delete_course','edit_course',\
 # class StudentPerm(Permission):
 #     def check_permission(self, request, action, obj):
         
-
 class IsStudentEnroll(Permission):
     def check_permission(self, request, action, obj):
         if isinstance(obj,Courses):
@@ -42,12 +51,15 @@ class IsStudentEnroll(Permission):
             id = obj.course.id
         elif isinstance(obj,Question):
             id = obj.quiz.course
+        else :
+            raise Exception("Object not have course attribute")
         return _check_enrolled(request.user,id)
 
 
 class IsCourseOwner2(Permission):
     def check_permission(self, request, action, obj):
-        return _check_object_owner(obj,request.user)
+        course = _get_course_object(obj)
+        return _check_object_owner(course,request.user)
 
 class IsQuizOwner2(Permission):
     def check_permission(self, request, action, obj = None):

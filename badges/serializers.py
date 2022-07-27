@@ -1,6 +1,7 @@
 from badges.models import *
 from rest_framework import serializers
-from myapi.serializers.user_serializers import * 
+# from myapi.serializers.user_serializers import * 
+from myapi.models import User
 from badges.rule_serializer import RulesSerializer
 from rest_framework.fields import SkipField
 from serpy import StrField
@@ -54,15 +55,12 @@ class AchievementLevelSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def create(self, validated_data):
-        print("inside create")
-        print(validated_data)
         owner = self.context['request'].user
         achievement = validated_data.pop('achievement')
         #TODO when create GroupAdmin  change owner
         achievement,created = Achievement.objects.get_or_create(**achievement,owner=owner)
 
         instance = AchievementLevel.objects.create(achievement=achievement,owner=owner,**validated_data)
-        print("created")
         return instance
 
 class UserAchievementSerializer(serializers.ModelSerializer):

@@ -26,7 +26,7 @@ class CourseViewSet(CustomDispatchMixin,CustomViewset):
     permission = CoursePermission
     model = Courses
 
-    def get(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):
         course = self.get_object()
         self.check_permission("view_course",request,obj=course)
         return Response(data=CourseSerial.dump(course),status=status.HTTP_200_OK)
@@ -37,7 +37,7 @@ class CourseViewSet(CustomDispatchMixin,CustomViewset):
         courses = course_list(query)
         return Response(data=CourseSerial.dump(courses,many=True),status=status.HTTP_200_OK)
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         data = request.data
         try:
             CourseValidator.validate(data)
@@ -48,7 +48,7 @@ class CourseViewSet(CustomDispatchMixin,CustomViewset):
         course = course_create(user=request.user,**data)
         return Response(data=CourseSerial.dump(course),status=status.HTTP_201_CREATED)
 
-    def patch(self, request, *args, **kwargs):
+    def partial_update(self, request, *args, **kwargs):
         data = request.data
         course_id = self.kwargs[self.pk_url_kwarg]
         course= self.get_object()
@@ -60,7 +60,7 @@ class CourseViewSet(CustomDispatchMixin,CustomViewset):
         course = course_update(course_id,**data)
         return Response(data=CourseSerial.dump(course),status=status.HTTP_200_OK)
 
-    def delete(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs):
         course_id = self.kwargs[self.pk_url_kwarg]
         course = self.get_object()
         self.check_permission("delete_course",request,obj=course)

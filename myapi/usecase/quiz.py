@@ -1,7 +1,6 @@
-from this import d
 from venv import create
 from django.http import Http404
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import APIException , MethodNotAllowed
 from rest_framework import status
 from requests import delete
 from myapi.models2 import Question
@@ -11,6 +10,7 @@ import datetime
 from typing import List, Tuple , Union 
 from myapi.models import Answer, Quiz , User
 from myapi.models2 import GQ ,MCQ,YNQ ,BaseItem
+from django.contrib.contenttypes.models import ContentType
 class QuizOpenBeforeException(APIException):
     status_code = status.HTTP_403_FORBIDDEN
     default_detail = "Quiz Already Opened Before"
@@ -112,9 +112,34 @@ def question_list(quiz_id:int) -> List[Question]:
     questions = [question  for question in queryset]
     return questions
 
-def question_update(question,data):
+def question_item_update(item_type:str,data:dict):
+    if data is None :
+        return
 
-    pass
+    item_id = data.pop("id")
+    model =ContentType.objects.get(app_label='myapi',model=item_type.lower())
+    model = model.model_class()
+    item_obj = model.objects.get(id=item_id)
+    for k,v in data.items():
+        if getattr(item_obj,k) != v :
+            setattr(item_obj,k,v)
+    item_obj.save()
+    return item_obj
 
-def question_delete():
-    pass
+def question_update(question_id:int,data:dict):
+    question = QuestionService.get_by_id(id=question_id)
+
+    item_type = data.pop("content_type")['model']
+    item = data.pop("item",None)
+    question_item_update(item_type,item)
+
+    for k,v in data.items():
+        if getattr(question,k) != v :
+            setattr(question,k,v)
+    question.save()
+    return question
+    raise MethodNotAllowed("update")
+
+def question_delete(obj):
+    obj = obj.delete()
+    return obj

@@ -9,7 +9,7 @@ class PermissionMixin:
         try:
             vaild = permcls.check_permission(request,action,obj)
         except Exception as e :
-            raise PermissionDenied("Forbidden , please login")
+            raise PermissionDenied(e)
         if not vaild :
             raise PermissionDenied
 
@@ -36,7 +36,6 @@ class CustomDispatchMixin:
         request = self.initialize_request(request, *args, **kwargs)
         self.request = request
         self.headers = self.default_response_headers  # deprecate?
-
         try:
             self.initial(request, *args, **kwargs)
 
@@ -58,7 +57,6 @@ class CustomDispatchMixin:
                                   self.http_method_not_allowed)
             else:
                 handler = self.http_method_not_allowed
-            print("handler")
             response = handler(request, *args, **kwargs)
 
         except Exception as exc:

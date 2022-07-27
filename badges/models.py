@@ -12,6 +12,7 @@ class Achievement(models.Model):
     @cached_property
     def owner_username(self):
         return self.owner.username
+        
 class AchievementLevel(models.Model):
     achievement = models.ForeignKey(Achievement,on_delete=models.CASCADE)
     parent = models.ForeignKey("self",null=True,on_delete=models.CASCADE)

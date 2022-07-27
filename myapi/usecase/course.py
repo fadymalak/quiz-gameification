@@ -5,13 +5,12 @@ from typing import List
 from rest_framework.exceptions import ParseError
 from itertools import chain
 def course_list(query:dict) -> List[Courses]:
-    teacher = query.get("teacher",None)
-    name = query.get("name",None)
-    if name is None and teacher is None :
+    search = query.get("search",None)
+    if search is None :
         raise ParseError(detail="Please add filters")
     
-    queryset = CourseService.get_courses_by_teacher(teacher)
-    queryset_by_name = CourseService.get_courses_by_name(name)
+    queryset = CourseService.get_courses_by_teacher(search)
+    queryset_by_name = CourseService.get_courses_by_name(search)
     final_query = [course for course in chain(queryset,queryset_by_name)]
     return final_query
 
