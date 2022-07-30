@@ -21,7 +21,6 @@ from myapi.views.user_views import UserViewSet
 from myapi.views.quiz_views import   QuizViewSet , AnswerViewset
 from myapi.views.courses_views import CourseViewSet
 from myapi.views.question_views import QuestionViewset
-from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt import views as jwt_views
 from rest_framework_nested import routers
 from badges.views import achievements , rules
@@ -49,9 +48,12 @@ quiz.register(r'quiz',QuizViewSet,basename='quizes')
 answer =routers.NestedSimpleRouter(quiz,r'quiz',lookup="quiz")
 answer.register(r'answer',AnswerViewset,basename="answer")
 answer.register(r'question',QuestionViewset,basename="qusetion")
+
 achievement = routers.DefaultRouter()
 achievement.register(r"achievement",achievements.AchievementViewSet,basename='achievement')
-rules = routers.NestedSimpleRouter(achievement, r'achievement', lookup='achievement_level')
+level = routers.NestedSimpleRouter(achievement, r'achievement', lookup='achievement')
+level.register(r"level",achievements.AchievementLevelViewSet,basename="achievement_level")
+rules = routers.NestedSimpleRouter(level, r'level', lookup='achievement_level')
 rules.register('rules',RulesViewSet,basename="rules")
 
 urlpatterns = [
@@ -77,6 +79,7 @@ path("",include(rules.urls))
 # urlpatterns += [path("silk/", include("silk.urls", namespace="silk"))]
 # urlpatterns += router.urls
 urlpatterns += achievement.urls
+urlpatterns += level.urls
 urlpatterns += rules.urls
 urlpatterns += course.urls
 urlpatterns += quiz.urls

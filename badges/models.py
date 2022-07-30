@@ -3,9 +3,13 @@ from django.db import models
 from myapi.models import User
 from django.utils import timezone
 
-
+class deletetable(models.Model):
+    deleted = models.BooleanField(default=False)
+    class Meta:
+        abstract = True
 # Create your models here.
 class Achievement(models.Model):
+    
     name = models.TextField()
     owner = models.ForeignKey(User,on_delete=models.CASCADE)
 
@@ -14,7 +18,7 @@ class Achievement(models.Model):
         return self.owner.username
         
 class AchievementLevel(models.Model):
-    achievement = models.ForeignKey(Achievement,on_delete=models.CASCADE)
+    achievement = models.ForeignKey(Achievement,related_name='achievement_levels',on_delete=models.CASCADE)
     parent = models.ForeignKey("self",null=True,on_delete=models.CASCADE)
     owner = models.ForeignKey(User,on_delete=models.CASCADE)
     name = models.TextField()

@@ -31,14 +31,14 @@ class AchievementNameSerializer(serializers.ModelSerializer):
 
 
 class AchievementSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(required=False)
-    owner = UsernameSerializer()
+    id = serializers.IntegerField(read_only=False,required=False)
+    owner = UsernameSerializer(read_only=True)
     class Meta:
         model = Achievement
         fields = "__all__"
 
-
 class AchievementLevelReadSerializer(serializers.ModelSerializer):
+    achievement = AchievementNameSerializer(read_only=True)
     owner = UsernameSerializer()
     parent = SubAchievementLevelSerializer()
     rules = RulesSerializer(many=True,read_only=True)
@@ -47,21 +47,21 @@ class AchievementLevelReadSerializer(serializers.ModelSerializer):
         fields = "__all__"
         
 class AchievementLevelSerializer(serializers.ModelSerializer):
-    achievement = AchievementNameSerializer()
+    achievement = AchievementNameSerializer(read_only=True)
     image = serializers.ImageField(required=False)
     owner = UsernameSerializer(read_only=True)
     class Meta:
         model = AchievementLevel
         fields = "__all__"
 
-    def create(self, validated_data):
-        owner = self.context['request'].user
-        achievement = validated_data.pop('achievement')
-        #TODO when create GroupAdmin  change owner
-        achievement,created = Achievement.objects.get_or_create(**achievement,owner=owner)
+    # def create(self, validated_data):
+    #     owner = self.context['request'].user
+    #     achievement = validated_data.pop('achievement')
+    #     #TODO when create GroupAdmin  change owner
+    #     achievement,created = Achievement.objects.get_or_create(**achievement,owner=owner)
 
-        instance = AchievementLevel.objects.create(achievement=achievement,owner=owner,**validated_data)
-        return instance
+    #     instance = AchievementLevel.objects.create(achievement=achievement,owner=owner,**validated_data)
+    #     return instance
 
 class UserAchievementSerializer(serializers.ModelSerializer):
     achievement = AchievementSerializer()

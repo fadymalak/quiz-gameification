@@ -6,6 +6,8 @@ import pytest
 import datetime
 
 @pytest.mark.django_db
+@pytest.mark.not_implemented
+@pytest.mark.rule
 def test_create_rule(API):
     user = UserFactory.create(is_staff=1)
     ach = Achievement.objects.create(name="Achieve 1",owner=user)
@@ -22,24 +24,3 @@ def test_create_rule(API):
     print(req.json())
     assert req.status_code == 201
 
-
-@pytest.mark.django_db
-def test_create_achievement(API):
-    user = UserFactory.create(is_staff=1)
-    print(user.id)
-    data = {
-        'achievement':{"name":"hello"},
-        'name':'hello Level 1',
-        
-
-    }
-
-    API.force_authenticate(user=user)
-    req = API.post("/achievement/",data,format="json")
-    data2 = data
-    data2['parent'] = req.json()['id']
-    req2 = API.post("/achievement/",data=data2,format="json")
-    print(req.json())
-    print("2-> ",req2.json())
-    assert req2.status_code == 201
-    assert req.status_code == 201
